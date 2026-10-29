@@ -370,7 +370,10 @@ HTML_CONTENT = """<!DOCTYPE html>
       const tabSignup = document.getElementById('tabSignup');
       const signinForm = document.getElementById('signinForm');
       const signupForm = document.getElementById('signupForm');
-
+const products = [
+  { id: 1, name: "Paper Wallet (Classic Bifold)", category: "wallet", price: 5, mrp: 10, discount: "50% off", image: walletClassicImg },
+  ...
+];
       if (tab === 'signin') {
         tabSignin.classList.add('active');
         tabSignup.classList.remove('active');
