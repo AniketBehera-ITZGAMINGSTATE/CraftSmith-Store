@@ -1,0 +1,578 @@
+from flask import Flask, render_template_string
+import os
+
+app = Flask(__name__)
+
+# Complete production HTML with paper crafts catalog, local auth, address manager, and cart drawer
+HTML_CONTENT = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Craft Smith: India's Paper Craft Store</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Roboto, Arial, sans-serif; }
+    body { background-color: #f1f2f6; color: #212121; padding-bottom: 40px; }
+
+    /* DOMAIN DISPLAY BAR */
+    .domain-bar { background-color: #1e293b; color: #94a3b8; font-size: 12px; padding: 6px 16px; text-align: center; border-bottom: 1px solid #334155; display: flex; justify-content: center; align-items: center; gap: 6px; }
+    .domain-bar span.lock { color: #10b981; font-weight: bold; }
+    .domain-bar a { color: #f8fafc; text-decoration: none; font-weight: 600; letter-spacing: 0.5px; }
+
+    /* NAVBAR */
+    header { background-color: #2874f0; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .top-nav { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; gap: 16px; }
+    .brand { display: flex; flex-direction: column; text-decoration: none; color: white; }
+    .brand-title { font-size: 20px; font-weight: 800; font-style: italic; line-height: 1; }
+    .brand-sub { font-size: 11px; color: #ffe500; font-weight: 500; margin-top: 2px; }
+
+    .search-box { flex: 1; max-width: 550px; display: flex; background: white; border-radius: 2px; overflow: hidden; }
+    .search-box input { width: 100%; border: none; padding: 9px 16px; font-size: 14px; outline: none; }
+    .search-box button { background: #ffe500; border: none; padding: 0 18px; color: #2874f0; font-weight: bold; cursor: pointer; }
+
+    .nav-actions { display: flex; align-items: center; gap: 20px; }
+    .login-btn { background: white; color: #2874f0; font-weight: bold; padding: 6px 20px; border-radius: 2px; border: none; cursor: pointer; }
+    .user-profile { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; cursor: pointer; font-size: 13px; }
+
+    .cart-btn { color: white; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; text-decoration: none; font-size: 15px; background: transparent; border: none; }
+    .cart-badge { background: #ff9f00; color: white; border-radius: 50%; padding: 2px 7px; font-size: 11px; }
+
+    /* SUB NAV */
+    .sub-nav { background: white; border-bottom: 1px solid #e0e0e0; box-shadow: 0 1px 1px rgba(0,0,0,0.05); }
+    .sub-nav-content { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-around; padding: 10px 16px; overflow-x: auto; }
+    .sub-item { font-size: 13px; font-weight: 500; color: #333; cursor: pointer; white-space: nowrap; }
+    .sub-item:hover { color: #2874f0; }
+
+    /* HERO BANNER */
+    .hero-banner { max-width: 1240px; margin: 12px auto; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 24px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+    .hero-text h1 { font-size: 26px; font-weight: 700; }
+    .hero-text p { font-size: 14px; color: #ffe500; margin-top: 4px; }
+
+    /* CATALOG GRID */
+    .catalog-container { max-width: 1240px; margin: 0 auto; background: white; padding: 16px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .catalog-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px; margin-bottom: 16px; }
+    .catalog-header h2 { font-size: 20px; font-weight: 700; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .card { border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px; display: flex; flex-direction: column; position: relative; background: white; transition: box-shadow 0.2s; }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .card-img-wrap { width: 100%; height: 180px; border-radius: 4px; overflow: hidden; background: #fafafa; display: flex; align-items: center; justify-content: center; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .card-title { font-size: 14px; font-weight: 500; color: #212121; margin-top: 10px; height: 38px; overflow: hidden; }
+    .badge-fba { font-size: 10px; color: #388e3c; font-weight: 700; margin-top: 2px; }
+    .price-row { display: flex; align-items: baseline; gap: 8px; margin-top: 8px; }
+    .price-curr { font-size: 18px; font-weight: 700; color: #212121; }
+    .price-mrp { font-size: 12px; color: #878787; text-decoration: line-through; }
+    .price-discount { font-size: 12px; color: #388e3c; font-weight: 700; }
+    .delivery-info { font-size: 11px; color: #212121; margin-top: 4px; }
+    .btn-add { background: #ff9f00; color: white; border: none; padding: 8px; font-weight: bold; border-radius: 2px; margin-top: 12px; cursor: pointer; font-size: 13px; }
+    .btn-add:hover { background: #e68f00; }
+
+    /* MODALS & DRAWER */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 200; }
+    .modal-card { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 440px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .auth-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 16px; }
+    .auth-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; font-weight: bold; color: #878787; }
+    .auth-tab.active { color: #2874f0; border-bottom: 2px solid #2874f0; margin-bottom: -2px; }
+    
+    .input-group { margin-bottom: 12px; }
+    .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+    .input-group input { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+    .btn-primary { background: #2874f0; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .btn-secondary { background: #e0e0e0; color: #333; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+
+    .address-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 4px; font-size: 12px; color: #334155; margin-bottom: 12px; }
+    .address-title { font-weight: bold; margin-bottom: 4px; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
+    .btn-link { color: #2874f0; background: none; border: none; cursor: pointer; font-weight: bold; font-size: 11px; }
+
+    .cart-drawer { position: fixed; top: 0; right: -380px; width: 360px; height: 100%; background: white; box-shadow: -4px 0 20px rgba(0,0,0,0.15); z-index: 300; transition: right 0.3s ease; display: flex; flex-direction: column; }
+    .cart-drawer.open { right: 0; }
+    .cart-header { background: #2874f0; color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+    .cart-items { flex: 1; overflow-y: auto; padding: 16px; }
+    .cart-item { display: flex; gap: 12px; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px; }
+    .cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+    .cart-item-details { flex: 1; }
+    .cart-item-title { font-size: 13px; font-weight: bold; }
+    .cart-item-price { font-size: 12px; color: #388e3c; font-weight: bold; }
+    .qty-controls { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .qty-btn { width: 22px; height: 22px; background: #eee; border: none; border-radius: 2px; cursor: pointer; font-weight: bold; }
+    .cart-footer { padding: 16px; border-top: 1px solid #eee; background: #fafafa; }
+    .total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-bottom: 12px; }
+
+    footer { background: #172337; color: #878787; text-align: center; padding: 20px; font-size: 12px; margin-top: 30px; }
+  </style>
+</head>
+<body>
+
+  <!-- DOMAIN BAR -->
+  <div class="domain-bar">
+    <span class="lock">🔒 SSL Secure</span>
+    <span>Web Address:</span>
+    <a href="https://craftsmith-store.onrender.com" onclick="event.preventDefault();">https://craftsmith-store.onrender.com</a>
+  </div>
+
+  <!-- NAVBAR -->
+  <header>
+    <div class="top-nav">
+      <a href="#" class="brand">
+        <span class="brand-title">Craft Smith</span>
+        <span class="brand-sub">Explore Plus ✦</span>
+      </a>
+      <div class="search-box">
+        <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Search paper wallets, card holders, coin pockets, airplanes..." />
+        <button onclick="filterProducts()">Search</button>
+      </div>
+      <div class="nav-actions">
+        <div id="authContainer">
+          <button class="login-btn" onclick="openAuthModal('signin')">Sign In</button>
+        </div>
+        <button class="cart-btn" onclick="toggleCartDrawer(true)">
+          🛒 Cart <span class="cart-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- SUB NAV -->
+  <div class="sub-nav">
+    <div class="sub-nav-content">
+      <span class="sub-item" onclick="filterCategory('all')">All Crafts</span>
+      <span class="sub-item" onclick="filterCategory('wallet')">💳 Wallets & Card Holders</span>
+      <span class="sub-item" onclick="filterCategory('slinky')">🌀 Paper Slinky</span>
+      <span class="sub-item" onclick="filterCategory('airplane')">✈️ Origami Airplanes</span>
+      <span class="sub-item" onclick="filterCategory('ddakji')">🎯 Korean Ddakji</span>
+    </div>
+  </div>
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <div class="hero-text">
+      <h1>India's Lowest Paper Craft Sale 🇮🇳</h1>
+      <p>Wallets, Card Holders & Coin Pockets flat at ₹5 (50% OFF)! Rainbow Slinky at ₹15.</p>
+    </div>
+  </div>
+
+  <!-- CATALOG -->
+  <div class="catalog-container">
+    <div class="catalog-header">
+      <h2>Trending Paper Crafts</h2>
+      <span style="font-size: 12px; color: #878787;" id="itemCountText">Showing items</span>
+    </div>
+    <div class="grid" id="productGrid"></div>
+  </div>
+
+  <!-- SIGN IN / SIGN UP MODAL -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-card">
+      <div class="auth-tabs">
+        <div class="auth-tab" id="tabSignin" onclick="switchTab('signin')">Sign In</div>
+        <div class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign Up</div>
+      </div>
+
+      <div id="signinForm">
+        <div class="input-group">
+          <label>Mobile Number or Email</label>
+          <input type="text" id="signinId" placeholder="Enter mobile or email" />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="signinPass" placeholder="Enter password" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeAuthModal()">Cancel</button>
+          <button class="btn-primary" onclick="handleSignIn()">Sign In</button>
+        </div>
+      </div>
+
+      <div id="signupForm" style="display: none;">
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" id="signupName" placeholder="Enter full name" />
+        </div>
+        <div class="input-group">
+          <label>Mobile Number or Email</label>
+          <input type="text" id="signupId" placeholder="Enter mobile or email" />
+        </div>
+        <div class="input-group">
+          <label>Create Password</label>
+          <input type="password" id="signupPass" placeholder="Create password" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeAuthModal()">Cancel</button>
+          <button class="btn-primary" onclick="handleSignUp()">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADDRESS MODAL -->
+  <div class="modal-overlay" id="addressModal">
+    <div class="modal-card">
+      <h3 style="font-size:16px; margin-bottom:12px;">📍 Add Delivery Address</h3>
+      <div class="input-group">
+        <label>Flat, House No., Building Name</label>
+        <input type="text" id="addrHouse" placeholder="e.g. House No. 42, Block B" />
+      </div>
+      <div class="input-group">
+        <label>Street, Area, Colony</label>
+        <input type="text" id="addrStreet" placeholder="e.g. Sector 62, Near Green Park" />
+      </div>
+      <div class="input-group">
+        <label>City / District</label>
+        <input type="text" id="addrCity" placeholder="e.g. Noida / New Delhi" />
+      </div>
+      <div class="input-group">
+        <label>Pincode</label>
+        <input type="text" id="addrPincode" placeholder="e.g. 201301" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeAddressModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveAddress()">Save Address</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <span>Your Shopping Bag</span>
+      <button style="background:none; border:none; color:white; font-size:18px; cursor:pointer;" onclick="toggleCartDrawer(false)">✕</button>
+    </div>
+    
+    <div class="cart-items" id="cartItemsContainer"></div>
+
+    <div class="cart-footer">
+      <div class="address-box">
+        <div class="address-title">
+          <span>📍 Delivery Address</span>
+          <button class="btn-link" onclick="openAddressModal()">+ Edit / New</button>
+        </div>
+        <div id="addressDisplay">No address saved yet. Click "+ Edit / New" to add.</div>
+      </div>
+
+      <div class="total-row">
+        <span>Total Amount:</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button class="btn-primary" style="width:100%; padding:12px;" onclick="checkout()">PLACE ORDER</button>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 Craft Smith India. All rights reserved. Delivered directly across Noida & India.
+  </footer>
+
+  <script>
+    const walletClassicImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23F4F5F7'/><g transform='translate(0, 10)'><rect x='15' y='65' width='170' height='80' rx='2' fill='%23E2E8F0' stroke='%23CBD5E1' stroke-width='2'/><path d='M15 105 L185 105 L185 145 L15 145 Z' fill='%23F8FAFC' stroke='%23CBD5E1' stroke-width='1.5'/><line x1='15' y1='105' x2='185' y2='105' stroke='%2394A3B8' stroke-width='1.5'/><line x1='100' y1='65' x2='100' y2='145' stroke='%2394A3B8' stroke-width='2' stroke-dasharray='4,2'/><path d='M20 70 Q100 85 180 70 L180 65 L20 65 Z' fill='%23CBD5E1' opacity='0.4'/><rect x='35' y='112' width='45' height='26' rx='2' fill='%233B82F6'/><circle cx='48' cy='125' r='5' fill='%23FEF08A'/></g></svg>";
+    const walletSlitImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23F4F5F7'/><g transform='translate(0, 5)'><rect x='20' y='50' width='160' height='100' rx='2' fill='%23FFFFFF' stroke='%23CBD5E1' stroke-width='2'/><polygon points='100,50 145,100 100,150 55,100' fill='%23E2E8F0' stroke='%2394A3B8' stroke-width='1.5'/><polygon points='100,58 137,100 100,142 63,100' fill='%23F1F5F9'/><line x1='100' y1='50' x2='100' y2='150' stroke='%2364748B' stroke-width='2'/><path d='M20 50 L55 100 L20 150 Z' fill='%23F8FAFC' stroke='%23CBD5E1' stroke-width='1'/><path d='M180 50 L145 100 L180 150 Z' fill='%23F8FAFC' stroke='%23CBD5E1' stroke-width='1'/></g></svg>";
+    const cardHolderCornerImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23F0E6D2'/><rect x='25' y='35' width='150' height='130' rx='2' fill='%23FFFFFF' stroke='%23CCCCCC'/><line x1='100' y1='35' x2='100' y2='165' stroke='%23DDDDDD' stroke-width='2'/><rect x='32' y='45' width='60' height='110' rx='3' fill='%231B4F72'/><circle cx='62' cy='100' r='18' fill='%23E74C3C'/><circle cx='62' cy='100' r='6' fill='%23FFFFFF'/><polygon points='25,35 70,35 25,80' fill='%23EAEAEA'/><polygon points='25,165 70,165 25,120' fill='%23EAEAEA'/><rect x='108' y='45' width='60' height='110' rx='3' fill='%231B4F72'/><circle cx='138' cy='100' r='18' fill='%23E74C3C'/><circle cx='138' cy='100' r='6' fill='%23FFFFFF'/><polygon points='175,35 130,35 175,80' fill='%23EAEAEA'/><polygon points='175,165 130,165 175,120' fill='%23EAEAEA'/></svg>";
+    const walletCoinImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23fafafa'/><rect x='25' y='50' width='150' height='100' rx='6' fill='%232ed573'/><rect x='35' y='65' width='55' height='70' rx='4' fill='%2326af5f'/><rect x='105' y='65' width='60' height='50' rx='4' fill='%23ffa502'/><path d='M 105 65 L 135 90 L 165 65' fill='%23ff7f50'/><circle cx='135' cy='130' r='10' fill='%23ffe500'/></svg>";
+    const slinkyImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23fafafa'/><path d='M30 140 Q 100 20 170 140' stroke='%23ff4757' stroke-width='12' fill='none'/><path d='M35 142 Q 100 30 165 142' stroke='%23ffa502' stroke-width='10' fill='none'/><path d='M40 144 Q 100 40 160 144' stroke='%232ed573' stroke-width='8' fill='none'/><path d='M45 146 Q 100 50 155 146' stroke='%231e90ff' stroke-width='6' fill='none'/></svg>";
+    const planeImg1 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23fafafa'/><polygon points='100,20 160,170 100,140 40,170' fill='%231e90ff'/><polygon points='100,20 100,140 160,170' fill='%230066cc'/></svg>";
+    const planeImg2 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23fafafa'/><polygon points='100,30 180,130 100,120 20,130' fill='%232ed573'/><polygon points='100,30 100,170 110,120' fill='%2326af5f'/></svg>";
+    const ddakjiImg1 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23fafafa'/><rect x='40' y='40' width='120' height='120' rx='8' fill='%23ff4757'/><path d='M 40 40 L 100 100 L 160 40' fill='%23ff6b81'/><path d='M 40 160 L 100 100 L 160 160' fill='%23dc2a2a'/></svg>";
+
+    const products = [
+      { id: 1, name: "Paper Wallet (Classic Bifold)", category: "wallet", price: 5, mrp: 10, discount: "50% off", image: walletClassicImg },
+      { id: 2, name: "Paper Wallet Card Holder (Diamond Fold)", category: "wallet", price: 5, mrp: 10, discount: "50% off", image: walletSlitImg },
+      { id: 3, name: "Card Holder (Corner Diamond Slot)", category: "wallet", price: 5, mrp: 10, discount: "50% off", image: cardHolderCornerImg },
+      { id: 4, name: "Paper Wallet & Card Holder with Coin Pocket", category: "wallet", price: 5, mrp: 10, discount: "50% off", image: walletCoinImg },
+      { id: 5, name: "3D Paper Slinky Rainbow Spring", category: "slinky", price: 15, mrp: 30, discount: "50% off", image: slinkyImg },
+      { id: 6, name: "Classic Dart Paper Airplane", category: "airplane", price: 5, mrp: 10, discount: "50% off", image: planeImg1 },
+      { id: 7, name: "Glider Stealth Fighter Airplane", category: "airplane", price: 5, mrp: 10, discount: "50% off", image: planeImg2 },
+      { id: 8, name: "Korean Ddakji Flipping Tile", category: "ddakji", price: 5, mrp: 10, discount: "50% off", image: ddakjiImg1 }
+    ];
+
+    let cart = [];
+
+    function getUsersFromStorage() {
+      return JSON.parse(localStorage.getItem('craftsmith_users') || '{}');
+    }
+
+    function getCurrentUser() {
+      return localStorage.getItem('craftsmith_active_user');
+    }
+
+    function setCurrentUser(name) {
+      if (name) localStorage.setItem('craftsmith_active_user', name);
+      else localStorage.removeItem('craftsmith_active_user');
+      updateAuthUI();
+    }
+
+    function getSavedAddress() {
+      return localStorage.getItem('craftsmith_address');
+    }
+
+    function renderAddressDisplay() {
+      const addr = getSavedAddress();
+      const display = document.getElementById('addressDisplay');
+      if (addr) {
+        display.textContent = addr;
+      } else {
+        display.textContent = "No address saved yet. Click '+ Edit / New' to add.";
+      }
+    }
+
+    function openAddressModal() {
+      document.getElementById('addressModal').style.display = 'flex';
+    }
+
+    function closeAddressModal() {
+      document.getElementById('addressModal').style.display = 'none';
+    }
+
+    function saveAddress() {
+      const house = document.getElementById('addrHouse').value.trim();
+      const street = document.getElementById('addrStreet').value.trim();
+      const city = document.getElementById('addrCity').value.trim();
+      const pincode = document.getElementById('addrPincode').value.trim();
+
+      if (!house || !street || !city || !pincode) {
+        alert('Please fill in all address details!');
+        return;
+      }
+
+      const fullAddress = `${house}, ${street}, ${city} - ${pincode}`;
+      localStorage.setItem('craftsmith_address', fullAddress);
+      renderAddressDisplay();
+      closeAddressModal();
+      alert('Address saved successfully!');
+    }
+
+    function updateAuthUI() {
+      const activeUser = getCurrentUser();
+      const authContainer = document.getElementById('authContainer');
+      if (activeUser) {
+        authContainer.innerHTML = `
+          <div class="user-profile" onclick="logout()">
+            👤 <span>${activeUser}</span> (Logout)
+          </div>
+        `;
+      } else {
+        authContainer.innerHTML = `
+          <button class="login-btn" onclick="openAuthModal('signin')">Sign In</button>
+        `;
+      }
+    }
+
+    function openAuthModal(defaultTab = 'signin') {
+      document.getElementById('authModal').style.display = 'flex';
+      switchTab(defaultTab);
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').style.display = 'none';
+    }
+
+    function switchTab(tab) {
+      const tabSignin = document.getElementById('tabSignin');
+      const tabSignup = document.getElementById('tabSignup');
+      const signinForm = document.getElementById('signinForm');
+      const signupForm = document.getElementById('signupForm');
+
+      if (tab === 'signin') {
+        tabSignin.classList.add('active');
+        tabSignup.classList.remove('active');
+        signinForm.style.display = 'block';
+        signupForm.style.display = 'none';
+      } else {
+        tabSignup.classList.add('active');
+        tabSignin.classList.remove('active');
+        signupForm.style.display = 'block';
+        signinForm.style.display = 'none';
+      }
+    }
+
+    function handleSignUp() {
+      const name = document.getElementById('signupName').value.trim();
+      const id = document.getElementById('signupId').value.trim().toLowerCase();
+      const pass = document.getElementById('signupPass').value;
+
+      if (!name || !id || !pass) {
+        alert('Please fill out all fields!');
+        return;
+      }
+
+      const users = getUsersFromStorage();
+      if (users[id]) {
+        alert('Account already exists! Please Sign In.');
+        switchTab('signin');
+        return;
+      }
+
+      users[id] = { name: name, pass: pass };
+      localStorage.setItem('craftsmith_users', JSON.stringify(users));
+      setCurrentUser(name);
+      closeAuthModal();
+      alert(`Account created! Welcome to Craft Smith, ${name}.`);
+    }
+
+    function handleSignIn() {
+      const id = document.getElementById('signinId').value.trim().toLowerCase();
+      const pass = document.getElementById('signinPass').value;
+
+      if (!id || !pass) {
+        alert('Please enter your details and password!');
+        return;
+      }
+
+      const users = getUsersFromStorage();
+      if (!users[id]) {
+        alert('No account found! Please Sign Up first.');
+        switchTab('signup');
+        return;
+      }
+
+      if (users[id].pass !== pass) {
+        alert('Incorrect password! Please try again.');
+        return;
+      }
+
+      setCurrentUser(users[id].name);
+      closeAuthModal();
+      alert(`Welcome back, ${users[id].name}!`);
+    }
+
+    function logout() {
+      setCurrentUser(null);
+      alert('Logged out successfully.');
+    }
+
+    function renderCatalog(itemsToRender = products) {
+      const grid = document.getElementById('productGrid');
+      document.getElementById('itemCountText').textContent = `Showing ${itemsToRender.length} items`;
+      
+      grid.innerHTML = itemsToRender.map(p => `
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="${p.image}" alt="${p.name}">
+          </div>
+          <div class="card-title">${p.name}</div>
+          <div class="badge-fba">✓ CraftSmith Assured</div>
+          <div class="price-row">
+            <span class="price-curr">₹${p.price}</span>
+            <span class="price-mrp">₹${p.mrp}</span>
+            <span class="price-discount">(${p.discount})</span>
+          </div>
+          <div class="delivery-info">FREE Delivery by Tomorrow</div>
+          <button class="btn-add" onclick="addToCart(${p.id})">ADD TO CART</button>
+        </div>
+      `).join('');
+    }
+
+    function filterProducts() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+      renderCatalog(filtered);
+    }
+
+    function filterCategory(cat) {
+      if (cat === 'all') {
+        renderCatalog(products);
+      } else {
+        const filtered = products.filter(p => p.category === cat);
+        renderCatalog(filtered);
+      }
+    }
+
+    function addToCart(productId) {
+      const existing = cart.find(item => item.id === productId);
+      if (existing) {
+        existing.qty++;
+      } else {
+        const prod = products.find(p => p.id === productId);
+        cart.push({ ...prod, qty: 1 });
+      }
+      updateCartUI();
+      toggleCartDrawer(true);
+    }
+
+    function updateQty(productId, delta) {
+      const item = cart.find(i => i.id === productId);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) {
+          cart = cart.filter(i => i.id !== productId);
+        }
+      }
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      
+      document.getElementById('cartCount').textContent = totalCount;
+      document.getElementById('cartTotal').textContent = `₹${totalPrice}`;
+
+      const cartContainer = document.getElementById('cartItemsContainer');
+      if (cart.length === 0) {
+        cartContainer.innerHTML = `<p style="text-align:center; color:#878787; margin-top:40px;">Your cart is empty!</p>`;
+      } else {
+        cartContainer.innerHTML = cart.map(item => `
+          <div class="cart-item">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="cart-item-details">
+              <div class="cart-item-title">${item.name}</div>
+              <div class="cart-item-price">₹${item.price} × ${item.qty} = ₹${item.price * item.qty}</div>
+              <div class="qty-controls">
+                <button class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
+                <span style="font-size:12px;">${item.qty}</span>
+                <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById('cartDrawer');
+      if (open) drawer.classList.add('open');
+      else drawer.classList.remove('open');
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+      }
+
+      const activeUser = getCurrentUser() || 'Guest User';
+      const address = getSavedAddress();
+
+      if (!address) {
+        alert('Please add a delivery address before placing your order!');
+        openAddressModal();
+        return;
+      }
+
+      alert(`🎉 Order Placed Successfully!\\n\\nCustomer: ${activeUser}\\nDelivery Address: ${address}\\nPayment: Cash on Delivery`);
+      cart = [];
+      updateCartUI();
+      toggleCartDrawer(false);
+    }
+
+    renderCatalog();
+    updateCartUI();
+    updateAuthUI();
+    renderAddressDisplay();
+  </script>
+</body>
+</html>
+"""
+
+# Synchronize HTML content to CraftSmith5.html file on startup
+html_path = os.path.join(os.path.dirname(__file__), 'CraftSmith5.html')
+with open(html_path, 'w', encoding='utf-8') as f:
+    f.write(HTML_CONTENT)
+
+@app.route('/')
+def home():
+    return render_template_string(HTML_CONTENT)
+
+if __name__ == '__main__':
+    # PORT supplied by cloud hosting dynamically
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
