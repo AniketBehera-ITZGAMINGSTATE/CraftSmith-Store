@@ -19,7 +19,7 @@ HTML_CONTENT = """
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
         .card { background: white; border-radius: 6px; padding: 15px; text-align: center; border: 1px solid #e0e0e0; display: flex; flex-direction: column; justify-content: space-between; }
         
-        /* Paper craft texture effect for first two items */
+        /* Paper craft style for first two items */
         .paper-style {
             background-color: #fcf8ed !important;
             border: 2px dashed #b5a48b !important;
@@ -76,18 +76,18 @@ HTML_CONTENT = """
             "12. Bikes"
         ];
 
-        // Base64 SVGs generated directly from your uploaded sketch screenshots
-        const sketchWalletA = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" fill="none" stroke="black" stroke-width="4"><rect x="20" y="50" width="460" height="300"/><path d="M 20 50 Q 250 10 480 50"/><polygon points="250,50 480,200 250,350 20,200"/><line x1="250" y1="50" x2="250" y2="350"/><line x1="20" y1="200" x2="120" y2="200"/><line x1="480" y1="200" x2="380" y2="200"/><circle cx="230" cy="110" r="2" fill="black"/><circle cx="120" cy="220" r="2" fill="black"/><circle cx="380" cy="280" r="2" fill="black"/></svg>';
+        // Clean SVG string definitions with quotes properly escaped
+        const sketchWalletA = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 400' fill='none' stroke='black' stroke-width='4'%3E%3Crect x='20' y='50' width='460' height='300'/%3E%3Cpath d='M 20 50 Q 250 10 480 50'/%3E%3Cpolygon points='250,50 480,200 250,350 20,200'/%3E%3Cline x1='250' y1='50' x2='250' y2='350'/%3E%3Cline x1='20' y1='200' x2='120' y2='200'/%3E%3Cline x1='480' y1='200' x2='380' y2='200'/%3E%3Ccircle cx='230' cy='110' r='3' fill='black'/%3E%3Ccircle cx='120' cy='220' r='3' fill='black'/%3E%3Ccircle cx='380' cy='280' r='3' fill='black'/%3E%3C/svg%3E";
         
-        const sketchWalletB = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" fill="none" stroke="black" stroke-width="4"><rect x="20" y="40" width="460" height="220"/><path d="M 20 40 Q 250 10 480 40"/><line x1="250" y1="40" x2="250" y2="260"/><polygon points="250,40 330,150 250,230 170,150"/><line x1="240" y1="40" x2="240" y2="230"/><line x1="260" y1="40" x2="260" y2="230"/><text x="180" y="140" font-size="16" fill="black" stroke="none">tokin</text><text x="270" y="140" font-size="16" fill="black" stroke="none">ctb+</text></svg>';
+        const sketchWalletB = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 300' fill='none' stroke='black' stroke-width='4'%3E%3Crect x='20' y='40' width='460' height='220'/%3E%3Cpath d='M 20 40 Q 250 10 480 40'/%3E%3Cline x1='250' y1='40' x2='250' y2='260'/%3E%3Cpolygon points='250,40 330,150 250,230 170,150'/%3E%3Cline x1='240' y1='40' x2='240' y2='230'/%3E%3Cline x1='260' y1='40' x2='260' y2='230'/%3E%3Ctext x='180' y='140' font-size='20' fill='black' stroke='none'%3Etokin%3C/text%3E%3Ctext x='270' y='140' font-size='20' fill='black' stroke='none'%3Ectb+%3C/text%3E%3C/svg%3E";
 
-        const sketchOrigamiWallet = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" fill="none" stroke="%23333" stroke-width="3"><rect x="10" y="20" width="130" height="150" fill="%23f7b731"/><rect x="140" y="20" width="130" height="150" fill="%23f7b731"/><rect x="150" y="40" width="110" height="40" fill="%23fa8231"/><rect x="160" y="30" width="90" height="30" fill="%2320bf6b"/></svg>';
+        const sketchOrigamiWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' fill='none' stroke='%23333' stroke-width='3'%3E%3Crect x='10' y='20' width='130' height='150' fill='%23f7b731'/%3E%3Crect x='140' y='20' width='130' height='150' fill='%23f7b731'/%3E%3Crect x='150' y='40' width='110' height='40' fill='%23fa8231'/%3E%3Crect x='160' y='30' width='90' height='30' fill='%2320bf6b'/%3E%3C/svg%3E";
 
-        const sketchSlinky = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path d="M 20 180 Q 20 20 100 20 Q 180 20 180 180" fill="none" stroke="%23ff5252" stroke-width="20"/><path d="M 30 180 Q 30 40 100 40 Q 170 40 170 180" fill="none" stroke="%23ffb142" stroke-width="20"/><path d="M 40 180 Q 40 60 100 60 Q 160 60 160 180" fill="none" stroke="%232ed573" stroke-width="20"/></svg>';
+        const sketchSlinky = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M 20 180 Q 20 20 100 20 Q 180 20 180 180' fill='none' stroke='%23ff5252' stroke-width='20'/%3E%3Cpath d='M 30 180 Q 30 40 100 40 Q 170 40 170 180' fill='none' stroke='%23ffb142' stroke-width='20'/%3E%3Cpath d='M 40 180 Q 40 60 100 60 Q 160 60 160 180' fill='none' stroke='%232ed573' stroke-width='20'/%3E%3C/svg%3E";
 
-        const sketchAirplane = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" fill="none" stroke="%23333" stroke-width="3"><polygon points="20,100 280,30 200,100" fill="%23ffffff"/><polygon points="20,100 280,30 250,170" fill="%23e0e0e0"/></svg>';
+        const sketchAirplane = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' fill='none' stroke='%23333' stroke-width='3'%3E%3Cpolygon points='20,100 280,30 200,100' fill='%23ffffff'/%3E%3Cpolygon points='20,100 280,30 250,170' fill='%23e0e0e0'/%3E%3C/svg%3E";
 
-        const sketchDdakji = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" stroke="%23333" stroke-width="2"><rect x="20" y="20" width="70" height="70" fill="%234b7bec"/><polygon points="20,20 90,90 20,90" fill="%233867d6"/><rect x="100" y="20" width="70" height="70" fill="%23eb3b5a"/><polygon points="100,20 170,90 100,90" fill="%23fc5c65"/></svg>';
+        const sketchDdakji = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23333' stroke-width='2'%3E%3Crect x='20' y='20' width='70' height='70' fill='%234b7bec'/%3E%3Cpolygon points='20,20 90,90 20,90' fill='%233867d6'/%3E%3Crect x='100' y='20' width='70' height='70' fill='%23eb3b5a'/%3E%3Cpolygon points='100,20 170,90 100,90' fill='%23fc5c65'/%3E%3C/svg%3E";
 
         const products = [
             { id: 1, name: "Paper Wallet (Design 1)", price: 10, isWallet: true, isPaper: true, image: sketchWalletA },
@@ -150,7 +150,6 @@ HTML_CONTENT = """
             `;
         }).join('');
 
-        // Initialize drawing canvases for custom option
         const canvasStates = {};
         function initCanvas(id) {
             const canvas = document.getElementById(`canvas-${id}`);
@@ -225,4 +224,3 @@ def home():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-    
