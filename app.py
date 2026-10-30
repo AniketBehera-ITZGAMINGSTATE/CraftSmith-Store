@@ -30,7 +30,6 @@ HTML_CONTENT = """
         .card img { width: 100%; height: 160px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
         .card h4 { font-size: 15px; margin-bottom: 6px; }
         .card .price { font-size: 16px; font-weight: bold; color: #388e3c; }
-        .card .mrp { text-decoration: line-through; color: #878787; font-size: 13px; margin-left: 5px; }
         .btn-add { background: #ff9f00; color: white; border: none; padding: 8px 14px; margin-top: 10px; border-radius: 2px; cursor: pointer; font-weight: bold; width: 100%; }
         .btn-add:hover { background: #e68f00; }
     </style>
@@ -61,8 +60,8 @@ HTML_CONTENT = """
 
     <div class="container">
         <div class="banner">
-            <h2>India's Lowest Paper Craft Sale IN</h2>
-            <p>Wallets, Card Holders & Coin Pockets flat at ₹5 (50% OFF)! Rainbow Slinky at ₹15.</p>
+            <h2>Craft Smith Premium Paper Collection</h2>
+            <p>Handcrafted Paper Crafts — Flat rates starting at ₹10!</p>
         </div>
 
         <h3 style="margin-bottom: 15px;">Trending Paper Crafts</h3>
@@ -71,10 +70,30 @@ HTML_CONTENT = """
 
     <script>
         const products = [
-            { id: 1, name: "Paper Wallet (Classic Bifold)", price: 5, mrp: 10, image: "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=400" },
-            { id: 2, name: "Rainbow Paper Slinky", price: 15, mrp: 30, image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=400" },
-            { id: 3, name: "Origami Super Glider Airplane", price: 5, mrp: 10, image: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=400" },
-            { id: 4, name: "Korean Ddakji Battle Tile", price: 5, mrp: 10, image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=400" }
+            { 
+                id: 1, 
+                name: "Paper Wallet (Classic Bifold)", 
+                price: 10, 
+                image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&auto=format&fit=crop&q=80" 
+            },
+            { 
+                id: 2, 
+                name: "Rainbow Paper Slinky", 
+                price: 30, 
+                image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80" 
+            },
+            { 
+                id: 3, 
+                name: "Origami Super Glider Airplane", 
+                price: 10, 
+                image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?w=500&auto=format&fit=crop&q=80" 
+            },
+            { 
+                id: 4, 
+                name: "Korean Ddakji Battle Tile", 
+                price: 10, 
+                image: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=500&auto=format&fit=crop&q=80" 
+            }
         ];
 
         const grid = document.getElementById('product-grid');
@@ -84,7 +103,6 @@ HTML_CONTENT = """
                 <h4>${p.name}</h4>
                 <div>
                     <span class="price">₹${p.price}</span>
-                    <span class="mrp">₹${p.mrp}</span>
                 </div>
                 <button class="btn-add" onclick="alert('Added ' + p.name + ' to cart!')">Add to Cart</button>
             </div>
