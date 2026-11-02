@@ -13,10 +13,12 @@ HTML_CONTENT = """
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #f1f2f6; color: #212121; padding-bottom: 60px; }
-        header { background-color: #2874f0; color: white; padding: 12px 8%; display: flex; align-items: center; justify-content: space-between; sticky: top; z-index: 100; }
+        header { background-color: #2874f0; color: white; padding: 12px 8%; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .logo { font-size: 22px; font-weight: bold; font-style: italic; }
         
-        .cart-icon-btn { background: #ffe500; color: #2874f0; border: none; padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .auth-btn { background: white; color: #2874f0; border: none; padding: 7px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        .cart-icon-btn { background: #ffe500; color: #2874f0; border: none; padding: 7px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
         
         .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
@@ -51,18 +53,49 @@ HTML_CONTENT = """
         .summary-row { display: flex; justify-content: space-between; font-size: 14px; margin: 8px 0; }
         .total-row { font-size: 16px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px; color: #2874f0; }
         .btn-confirm { background: #2874f0; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 12px; }
+        .auth-switch { font-size: 12px; margin-top: 10px; color: #2874f0; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">Craft Smith</div>
-        <button class="cart-icon-btn" onclick="openCartModal()">🛒 Cart (<span id="cart-count">0</span>)</button>
+        <div class="header-actions">
+            <span id="userGreeting" style="font-size:13px; font-weight:bold; display:none;"></span>
+            <button class="auth-btn" id="loginHeaderBtn" onclick="openModal('authModal')">Sign In / Register</button>
+            <button class="cart-icon-btn" onclick="openCartModal()">🛒 Cart (<span id="cart-count">0</span>)</button>
+        </div>
     </header>
 
     <div class="container">
         <h3 style="margin-bottom: 15px; color: #333;">Handcrafted Paper Collection</h3>
         <div class="grid" id="product-grid"></div>
+    </div>
+
+    <!-- AUTH POPUP MODAL (LOGIN & SIGN UP) -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeModal('authModal')">&times;</span>
+            <h3 id="authTitle">Sign In</h3>
+            
+            <div class="form-group" id="nameGroup" style="display:none;">
+                <label>Full Name</label>
+                <input type="text" id="authName" placeholder="Enter full name">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="authEmail" placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="authPassword" placeholder="Enter password">
+            </div>
+
+            <button class="btn-confirm" id="authSubmitBtn" onclick="handleAuth()">Sign In</button>
+            <div style="text-align:center;">
+                <span class="auth-switch" id="authToggle" onclick="toggleAuthMode()">New to Craft Smith? Create an account</span>
+            </div>
+        </div>
     </div>
 
     <!-- BUY NOW / CHECKOUT POPUP MODAL -->
@@ -127,7 +160,7 @@ HTML_CONTENT = """
         const bikeModels = ["Kawasaki Ninja H2R", "Ducati Panigale V4 R", "Yamaha YZF-R1 [Black/Stealth Edition]", "Royal Enfield Meteor"];
         const marvelHeroes = ["1. Spider-Man", "2. Iron Man", "3. Thor", "4. Hulk", "5. Wolverine"];
 
-        const themes = [
+        const walletThemes = [
             "1. Pokémon",
             "2. Football",
             "3. Limited Edition- 2026-27",
@@ -143,7 +176,11 @@ HTML_CONTENT = """
             "13. Bikes"
         ];
 
-        // Clean encoded inline SVG illustrations matching uploaded screenshots
+        const ddakjiThemes = [
+            "1. Classic Blue & Red",
+            "2. Custom Ddakji (Draw below)"
+        ];
+
         const imgCardHolderWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 320' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='300' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='30' width='440' height='50' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='180' y='60' font-size='18' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='100' width='440' height='200' fill='%23ffffff' stroke='%23cccccc'/%3E%3Crect x='50' y='140' width='190' height='100' fill='%230f4c81' rx='4'/%3E%3Ctext x='140' y='195' font-size='20' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Crect x='260' y='140' width='190' height='100' fill='%231e1e1e' rx='4'/%3E%3Ctext x='340' y='195' font-size='20' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
 
         const imgDiamondSlotWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 320' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='300' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='30' width='440' height='50' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='180' y='60' font-size='18' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='100' width='440' height='200' fill='%23ffffff' stroke='%23cccccc'/%3E%3Cpolygon points='50,200 145,110 240,200 145,290' fill='%230f4c81'/%3E%3Cpolygon points='260,200 355,110 450,200 355,290' fill='%231e1e1e'/%3E%3Ctext x='115' y='205' font-size='16' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Ctext x='315' y='205' font-size='16' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
@@ -158,12 +195,14 @@ HTML_CONTENT = """
             { id: 1, name: "Card Holder Paper Wallet", price: 10, isWallet: true, image: imgCardHolderWallet },
             { id: 2, name: "Diamond Slot Paper Wallet", price: 10, isWallet: true, image: imgDiamondSlotWallet },
             { id: 3, name: "Envelope Fold Paper Wallet", price: 10, isWallet: true, image: imgEnvelopeFoldWallet },
-            { id: 4, name: "Korean Ddakji Battle Tile", price: 10, isWallet: false, image: imgDdakjiTile },
+            { id: 4, name: "Korean Ddakji Battle Tile", price: 10, isDdakji: true, image: imgDdakjiTile },
             { id: 5, name: "Glider Paper Plane (Top & Side Fold)", price: 10, isWallet: false, image: imgGliderPlaneCombined }
         ];
 
         let cartItems = [];
         let currentCheckoutProduct = null;
+        let isSignUpMode = false;
+        let currentUser = null;
 
         const grid = document.getElementById('product-grid');
         grid.innerHTML = products.map(p => {
@@ -173,7 +212,7 @@ HTML_CONTENT = """
                     <div class="theme-select-box">
                         <label>Theme Option:</label>
                         <select id="theme-${p.id}" onchange="handleThemeChange(${p.id})">
-                            ${themes.map(t => `<option value="${t}">${t}</option>`).join('')}
+                            ${walletThemes.map(t => `<option value="${t}">${t}</option>`).join('')}
                         </select>
                         
                         <div id="sub-team-container-${p.id}" style="display: none;">
@@ -206,6 +245,21 @@ HTML_CONTENT = """
 
                         <div id="custom-container-${p.id}" style="display: none;">
                             <label>Draw Custom Artwork:</label>
+                            <canvas id="canvas-${p.id}" width="220" height="90"></canvas>
+                            <button class="btn-clear" onclick="clearCanvas(${p.id})">Clear Canvas</button>
+                        </div>
+                    </div>
+                `;
+            } else if (p.isDdakji) {
+                themeControls = `
+                    <div class="theme-select-box">
+                        <label>Ddakji Style:</label>
+                        <select id="theme-${p.id}" onchange="handleThemeChange(${p.id})">
+                            ${ddakjiThemes.map(t => `<option value="${t}">${t}</option>`).join('')}
+                        </select>
+
+                        <div id="custom-container-${p.id}" style="display: none;">
+                            <label>Draw Custom Ddakji Pattern:</label>
                             <canvas id="canvas-${p.id}" width="220" height="90"></canvas>
                             <button class="btn-clear" onclick="clearCanvas(${p.id})">Clear Canvas</button>
                         </div>
@@ -257,22 +311,31 @@ HTML_CONTENT = """
         function handleThemeChange(productId) {
             const themeVal = document.getElementById(`theme-${productId}`).value;
             
-            document.getElementById(`sub-team-container-${productId}`).style.display = themeVal.includes("Football") ? "block" : "none";
-            document.getElementById(`sub-marvel-container-${productId}`).style.display = themeVal.includes("Limited Edition") ? "block" : "none";
-            document.getElementById(`sub-car-container-${productId}`).style.display = themeVal.includes("Cars") ? "block" : "none";
-            document.getElementById(`sub-bike-container-${productId}`).style.display = themeVal.includes("Bikes") ? "block" : "none";
+            const teamBox = document.getElementById(`sub-team-container-${productId}`);
+            const marvelBox = document.getElementById(`sub-marvel-container-${productId}`);
+            const carBox = document.getElementById(`sub-car-container-${productId}`);
+            const bikeBox = document.getElementById(`sub-bike-container-${productId}`);
+
+            if (teamBox) teamBox.style.display = themeVal.includes("Football") ? "block" : "none";
+            if (marvelBox) marvelBox.style.display = themeVal.includes("Limited Edition") ? "block" : "none";
+            if (carBox) carBox.style.display = themeVal.includes("Cars") ? "block" : "none";
+            if (bikeBox) bikeBox.style.display = themeVal.includes("Bikes") ? "block" : "none";
             
             const isCustom = themeVal.includes("Custom");
-            document.getElementById(`custom-container-${productId}`).style.display = isCustom ? "block" : "none";
-            if (isCustom) initCanvas(productId);
+            const customBox = document.getElementById(`custom-container-${productId}`);
+            if (customBox) {
+                customBox.style.display = isCustom ? "block" : "none";
+                if (isCustom) initCanvas(productId);
+            }
         }
 
         function getSelectedProductDetails(productId) {
             const product = products.find(p => p.id === productId);
             let details = `${product.name}`;
 
-            if (product.isWallet) {
-                const themeVal = document.getElementById(`theme-${productId}`).value;
+            const themeSelect = document.getElementById(`theme-${productId}`);
+            if (themeSelect) {
+                const themeVal = themeSelect.value;
                 details += ` (${themeVal}`;
 
                 if (themeVal.includes("Football")) {
@@ -291,6 +354,30 @@ HTML_CONTENT = """
             return { product, details };
         }
 
+        /* AUTH MODAL HANDLERS */
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('authTitle').innerText = isSignUpMode ? "Create Account" : "Sign In";
+            document.getElementById('authSubmitBtn').innerText = isSignUpMode ? "Register" : "Sign In";
+            document.getElementById('nameGroup').style.display = isSignUpMode ? "block" : "none";
+            document.getElementById('authToggle').innerText = isSignUpMode ? "Already have an account? Sign In" : "New to Craft Smith? Create an account";
+        }
+
+        function handleAuth() {
+            const email = document.getElementById('authEmail').value;
+            if (!email) return alert('Please enter your email!');
+
+            currentUser = isSignUpMode ? document.getElementById('authName').value || "Customer" : email.split('@')[0];
+            document.getElementById('userGreeting').innerText = `Hi, ${currentUser}`;
+            document.getElementById('userGreeting').style.display = "inline";
+            document.getElementById('loginHeaderBtn').style.display = "none";
+            document.getElementById('custName').value = currentUser;
+            
+            closeModal('authModal');
+            alert(isSignUpMode ? `Welcome to Craft Smith, ${currentUser}!` : `Signed in successfully as ${currentUser}`);
+        }
+
+        /* CART & CHECKOUT */
         function addToCart(productId) {
             const { product, details } = getSelectedProductDetails(productId);
             cartItems.push({ ...product, details });
@@ -305,7 +392,7 @@ HTML_CONTENT = """
             document.getElementById('buyProductDetails').innerText = details + ` — ₹${product.price}`;
             document.getElementById('summaryPrice').innerText = `₹${product.price}`;
             updateShipping();
-            document.getElementById('buyModal').style.display = 'flex';
+            openModal('buyModal');
         }
 
         function updateShipping() {
@@ -328,7 +415,7 @@ HTML_CONTENT = """
                 }).join('');
                 document.getElementById('cartSubtotal').innerText = `₹${subtotal}`;
             }
-            document.getElementById('cartModal').style.display = 'flex';
+            openModal('cartModal');
         }
 
         function checkoutCart() {
@@ -339,7 +426,7 @@ HTML_CONTENT = """
             document.getElementById('buyProductDetails').innerText = `${cartItems.length} Items Subtotal — ₹${subtotal}`;
             document.getElementById('summaryPrice').innerText = `₹${subtotal}`;
             updateShipping();
-            document.getElementById('buyModal').style.display = 'flex';
+            openModal('buyModal');
         }
 
         function confirmOrder() {
@@ -351,6 +438,10 @@ HTML_CONTENT = """
             cartItems = [];
             document.getElementById('cart-count').innerText = 0;
             closeModal('buyModal');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
         }
 
         function closeModal(id) {
