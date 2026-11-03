@@ -33,9 +33,34 @@ HTML_CONTENT = """
         .theme-select-box label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; }
         .theme-select-box select, .theme-select-box input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; outline: none; }
         
-        canvas { border: 1px dashed #888; background: #fff; cursor: crosshair; margin-top: 4px; border-radius: 4px; }
-        .canvas-tools { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
-        .btn-tool { color: white; border: none; padding: 4px 8px; font-size: 10px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        /* Rectangle Preview Container for Uploaded & Drawing Artwork */
+        .preview-rectangle { 
+            width: 100%; 
+            height: 120px; 
+            border: 2px dashed #0088cc; 
+            background: #ffffff; 
+            margin-top: 6px; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        
+        canvas { width: 100%; height: 100%; cursor: crosshair; }
+        
+        .preview-rectangle img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: fill; 
+            margin: 0; 
+            border: none; 
+            border-radius: 0; 
+        }
+
+        .canvas-tools { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+        .btn-tool { color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; font-weight: bold; flex: 1; }
         .btn-clear { background: #dc3545; }
         .btn-lock { background: #28a745; }
         .btn-tool:disabled { background: #ccc !important; cursor: not-allowed; }
@@ -169,7 +194,7 @@ HTML_CONTENT = """
             "2. Football",
             "3. Limited Edition- 2026-27",
             "4. Space",
-            "5. Custom (Upload image or Draw)",
+            "5. Custom (Import Picture or Draw)",
             "6. Barbie",
             "7. Hello Kitty",
             "8. Cute Smiley",
@@ -182,7 +207,7 @@ HTML_CONTENT = """
 
         const ddakjiThemes = [
             "1. Classic Blue & Red",
-            "2. Custom Ddakji (Upload image or Draw)"
+            "2. Custom Ddakji (Import Picture or Draw)"
         ];
 
         const imgCardHolderWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 320' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='300' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='30' width='440' height='50' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='180' y='60' font-size='18' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='100' width='440' height='200' fill='%23ffffff' stroke='%23cccccc'/%3E%3Crect x='50' y='140' width='190' height='100' fill='%230f4c81' rx='4'/%3E%3Ctext x='140' y='195' font-size='20' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Crect x='260' y='140' width='190' height='100' fill='%231e1e1e' rx='4'/%3E%3Ctext x='340' y='195' font-size='20' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
@@ -244,12 +269,17 @@ HTML_CONTENT = """
                         </div>
 
                         <div id="custom-container-${p.id}" style="display: none;">
-                            <label>Custom Artwork / Photo:</label>
-                            <input type="file" id="file-${p.id}" accept="image/*" onchange="uploadImage(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
-                            <canvas id="canvas-${p.id}" width="220" height="90"></canvas>
+                            <label>Import Picture from Files:</label>
+                            <input type="file" id="file-${p.id}" accept="image/*" onchange="importPicture(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
+                            
+                            <div class="preview-rectangle" id="rectangle-box-${p.id}">
+                                <canvas id="canvas-${p.id}" width="240" height="120"></canvas>
+                                <img id="locked-img-${p.id}" style="display:none;" alt="Stuck Custom Picture">
+                            </div>
+
                             <div class="canvas-tools">
                                 <button class="btn-tool btn-clear" id="btn-clear-${p.id}" onclick="clearCanvas(${p.id})">Clear</button>
-                                <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockCanvas(${p.id})">🔒 Lock Picture Permanent</button>
+                                <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockPicture(${p.id})">🔒 Lock Picture Permanent</button>
                             </div>
                         </div>
                     </div>
@@ -263,12 +293,17 @@ HTML_CONTENT = """
                         </select>
 
                         <div id="custom-container-${p.id}" style="display: none;">
-                            <label>Custom Artwork / Photo:</label>
-                            <input type="file" id="file-${p.id}" accept="image/*" onchange="uploadImage(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
-                            <canvas id="canvas-${p.id}" width="220" height="90"></canvas>
+                            <label>Import Picture from Files:</label>
+                            <input type="file" id="file-${p.id}" accept="image/*" onchange="importPicture(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
+                            
+                            <div class="preview-rectangle" id="rectangle-box-${p.id}">
+                                <canvas id="canvas-${p.id}" width="240" height="120"></canvas>
+                                <img id="locked-img-${p.id}" style="display:none;" alt="Stuck Custom Picture">
+                            </div>
+
                             <div class="canvas-tools">
                                 <button class="btn-tool btn-clear" id="btn-clear-${p.id}" onclick="clearCanvas(${p.id})">Clear</button>
-                                <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockCanvas(${p.id})">🔒 Lock Picture Permanent</button>
+                                <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockPicture(${p.id})">🔒 Lock Picture Permanent</button>
                             </div>
                         </div>
                     </div>
@@ -277,7 +312,7 @@ HTML_CONTENT = """
 
             return `
                 <div class="card">
-                    <img src="${p.image}" alt="${p.name}">
+                    <img id="card-main-img-${p.id}" src="${p.image}" alt="${p.name}">
                     <h4>${p.name}</h4>
                     <div class="price">₹${p.price}</div>
                     ${themeControls}
@@ -305,7 +340,7 @@ HTML_CONTENT = """
             canvas.addEventListener('mousemove', (e) => {
                 if (!drawing || canvasStates[id].locked) return;
                 const rect = canvas.getBoundingClientRect();
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 3;
                 ctx.lineCap = 'round';
                 ctx.strokeStyle = '#2874f0';
                 ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
@@ -314,12 +349,13 @@ HTML_CONTENT = """
                 ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
             });
 
-            canvasStates[id] = { canvas, ctx, locked: false };
+            canvasStates[id] = { canvas, ctx, locked: false, loadedSrc: null };
+            loadSavedPicture(id);
         }
 
-        function uploadImage(id, event) {
+        function importPicture(id, event) {
             if (canvasStates[id] && canvasStates[id].locked) {
-                alert('This canvas is locked permanently and cannot be modified!');
+                alert('This picture is locked permanent and cannot be changed!');
                 return;
             }
             const file = event.target.files[0];
@@ -327,37 +363,77 @@ HTML_CONTENT = """
 
             const reader = new FileReader();
             reader.onload = function(e) {
+                const imgData = e.target.result;
                 const img = new Image();
                 img.onload = function() {
                     const { canvas, ctx } = canvasStates[id];
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvasStates[id].loadedSrc = imgData;
                 }
-                img.src = e.target.result;
+                img.src = imgData;
             }
             reader.readAsDataURL(file);
         }
 
-        function lockCanvas(id) {
+        function lockPicture(id) {
             if (!canvasStates[id]) return;
-            canvasStates[id].locked = true;
-
-            document.getElementById(`file-${id}`).disabled = true;
-            document.getElementById(`btn-clear-${id}`).disabled = true;
-            const lockBtn = document.getElementById(`btn-lock-${id}`);
-            lockBtn.disabled = true;
-            lockBtn.innerText = "🔒 Permanently Locked";
             
-            const themeSelect = document.getElementById(`theme-${id}`);
-            if (themeSelect) themeSelect.disabled = true;
+            const state = canvasStates[id];
+            state.locked = true;
 
-            alert('Picture locked permanently! No changes can be made now.');
+            let finalImageSrc = state.loadedSrc || state.canvas.toDataURL();
+            
+            // Save permanently in browser storage so it stays stuck across page reloads
+            localStorage.setItem(`craftsmith_locked_pic_${id}`, finalImageSrc);
+
+            applyPermanentLockUI(id, finalImageSrc);
+            alert('Picture locked permanent! It is stuck and visible to everyone. No one can change anything now.');
+        }
+
+        function applyPermanentLockUI(id, imgSrc) {
+            const canvas = document.getElementById(`canvas-${id}`);
+            const lockedImg = document.getElementById(`locked-img-${id}`);
+            const mainCardImg = document.getElementById(`card-main-img-${id}`);
+            
+            if (canvas) canvas.style.display = 'none';
+            if (lockedImg) {
+                lockedImg.src = imgSrc;
+                lockedImg.style.display = 'block';
+            }
+            if (mainCardImg) {
+                mainCardImg.src = imgSrc; // Updates main product visual to stuck picture
+            }
+
+            const fileInput = document.getElementById(`file-${id}`);
+            const clearBtn = document.getElementById(`btn-clear-${id}`);
+            const lockBtn = document.getElementById(`btn-lock-${id}`);
+            const themeSelect = document.getElementById(`theme-${id}`);
+
+            if (fileInput) fileInput.disabled = true;
+            if (clearBtn) clearBtn.disabled = true;
+            if (lockBtn) {
+                lockBtn.disabled = true;
+                lockBtn.innerText = "🔒 Permanently Locked & Stuck";
+            }
+            if (themeSelect) themeSelect.disabled = true;
+        }
+
+        function loadSavedPicture(id) {
+            const savedData = localStorage.getItem(`craftsmith_locked_pic_${id}`);
+            if (savedData) {
+                canvasStates[id].locked = true;
+                canvasStates[id].loadedSrc = savedData;
+                applyPermanentLockUI(id, savedData);
+            }
         }
 
         function clearCanvas(id) {
             if (canvasStates[id] && !canvasStates[id].locked) {
-                canvasStates[id].ctx.clearRect(0, 0, 220, 90);
-                document.getElementById(`file-${id}`).value = '';
+                canvasStates[id].ctx.clearRect(0, 0, 240, 120);
+                canvasStates[id].loadedSrc = null;
+                const fileInput = document.getElementById(`file-${id}`);
+                if (fileInput) fileInput.value = '';
             }
         }
 
@@ -401,7 +477,7 @@ HTML_CONTENT = """
                     details += ` - ${document.getElementById(`bike-${productId}`).value}`;
                 } else if (themeVal.includes("Custom")) {
                     const isLocked = canvasStates[productId] && canvasStates[productId].locked;
-                    details += isLocked ? ` - Permanently Locked Custom Image Attached` : ` - Custom Artwork Attached`;
+                    details += isLocked ? ` - Permanently Stuck Locked Image Attached` : ` - Imported Custom Picture Attached`;
                 }
                 details += `)`;
             }
@@ -513,3 +589,4 @@ def home():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+    
