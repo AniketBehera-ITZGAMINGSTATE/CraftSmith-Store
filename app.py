@@ -59,7 +59,7 @@ HTML_CONTENT = """
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 6px;
+            padding: 12px;
             overflow: hidden;
         }
 
@@ -254,10 +254,15 @@ HTML_CONTENT = """
             "2. Custom Ddakji (Import Picture or Draw)"
         ];
 
-        const imgCardHolderWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 340' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='30' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='68' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='110' width='440' height='200' fill='%23ffffff' stroke='%23cccccc'/%3E%3Crect x='50' y='150' width='190' height='100' fill='%230f4c81' rx='4'/%3E%3Ctext x='140' y='205' font-size='20' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Crect x='260' y='150' width='190' height='100' fill='%231e1e1e' rx='4'/%3E%3Ctext x='340' y='205' font-size='20' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
-        const imgDiamondSlotWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 340' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='30' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='68' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='110' width='440' height='200' fill='%23ffffff' stroke='%23cccccc'/%3E%3Cpolygon points='50,210 145,120 240,210 145,300' fill='%230f4c81'/%3E%3Cpolygon points='260,210 355,120 450,210 355,300' fill='%231e1e1e'/%3E%3Ctext x='115' y='215' font-size='16' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Ctext x='315' y='215' font-size='16' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
-        const imgEnvelopeFoldWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 320' fill='none' stroke='%23cccccc' stroke-width='3'%3E%3Crect x='20' y='20' width='140' height='280' fill='%2300a8ff' rx='4'/%3E%3Cpolygon points='20,20 160,20 90,160' fill='%230088cc'/%3E%3Crect x='180' y='20' width='140' height='280' fill='%23e84118' rx='4'/%3E%3Cpolygon points='180,20 320,20 250,160' fill='%23c23616'/%3E%3Crect x='340' y='20' width='140' height='280' fill='%23ffffff' rx='4' stroke='%23b2bec3'/%3E%3Cpolygon points='340,20 480,20 410,160' fill='%23f5f6fa' stroke='%23b2bec3'/%3E%3C/svg%3E";
-        const imgDdakjiTile = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 240' fill='none' stroke='%23333' stroke-width='2'%3E%3Crect x='30' y='20' width='110' height='110' fill='%234b7bec'/%3E%3Cpolygon points='30,20 140,130 30,130' fill='%233867d6'/%3E%3Crect x='160' y='20' width='110' height='110' fill='%23eb3b5a'/%3E%3Cpolygon points='160,20 270,130 160,130' fill='%23fc5c65'/%3E%3Ctext x='70' y='190' font-size='16' fill='%23555' stroke='none'%3EKorean Ddakji Battle Tile%3C/text%3E%3C/svg%3E";
+        // Adjusted ViewBox parameters (0 -20 500 380) to add vertical headroom for banknote
+        const imgCardHolderWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -20 500 380' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='10' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='48' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='90' width='440' height='220' fill='%23ffffff' stroke='%23cccccc'/%3E%3Crect x='50' y='140' width='190' height='100' fill='%230f4c81' rx='4'/%3E%3Ctext x='140' y='195' font-size='20' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Crect x='260' y='140' width='190' height='100' fill='%231e1e1e' rx='4'/%3E%3Ctext x='340' y='195' font-size='20' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
+        
+        const imgDiamondSlotWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -20 500 380' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='10' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='48' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='90' width='440' height='220' fill='%23ffffff' stroke='%23cccccc'/%3E%3Cpolygon points='50,200 145,110 240,200 145,290' fill='%230f4c81'/%3E%3Cpolygon points='260,200 355,110 450,200 355,290' fill='%231e1e1e'/%3E%3Ctext x='115' y='205' font-size='16' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Ctext x='315' y='205' font-size='16' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
+        
+        const imgEnvelopeFoldWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -10 500 340' fill='none' stroke='%23cccccc' stroke-width='3'%3E%3Crect x='20' y='10' width='140' height='290' fill='%2300a8ff' rx='4'/%3E%3Cpolygon points='20,10 160,10 90,150' fill='%230088cc'/%3E%3Crect x='180' y='10' width='140' height='290' fill='%23e84118' rx='4'/%3E%3Cpolygon points='180,10 320,10 250,150' fill='%23c23616'/%3E%3Crect x='340' y='10' width='140' height='290' fill='%23ffffff' rx='4' stroke='%23b2bec3'/%3E%3Cpolygon points='340,10 480,10 410,150' fill='%23f5f6fa' stroke='%23b2bec3'/%3E%3C/svg%3E";
+        
+        const imgDdakjiTile = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -10 300 240' fill='none' stroke='%23333' stroke-width='2'%3E%3Crect x='30' y='10' width='110' height='110' fill='%234b7bec'/%3E%3Cpolygon points='30,10 140,120 30,120' fill='%233867d6'/%3E%3Crect x='160' y='10' width='110' height='110' fill='%23eb3b5a'/%3E%3Cpolygon points='160,10 270,120 160,120' fill='%23fc5c65'/%3E%3Ctext x='70' y='180' font-size='16' fill='%23555' stroke='none'%3EKorean Ddakji Battle Tile%3C/text%3E%3C/svg%3E";
+        
         const imgGliderPlaneCombined = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 280' fill='none' stroke='%23555' stroke-width='3'%3E%3Cg transform='translate(20,20)'%3E%3Cpolygon points='100,10 10,230 100,200 190,230' fill='%23ffffff' stroke='%23888'/%3E%3Cline x1='100' y1='10' x2='100' y2='200' stroke='%23888'/%3E%3Ctext x='50' y='255' font-size='13' fill='%23666' stroke='none'%3ETop Fold View%3C/text%3E%3C/g%3E%3Cg transform='translate(240,20)'%3E%3Cpolygon points='10,40 220,130 10,190' fill='%23f5f5f5' stroke='%23888'/%3E%3Cpolygon points='10,40 220,130 30,90' fill='%23ffffff' stroke='%23888'/%3E%3Ctext x='70' y='255' font-size='13' fill='%23666' stroke='none'%3ESide Wing View%3C/text%3E%3C/g%3E%3C/svg%3E";
 
         const products = [
@@ -558,7 +563,7 @@ HTML_CONTENT = """
             const { product, details } = getSelectedProductDetails(productId);
             cartItems.push({ ...product, details });
             document.getElementById('cart-count').innerText = cartItems.length;
-            alert(`Added to Cart!\\n${details}`);
+            alert(`Added to Cart!\n${details}`);
         }
 
         function buyNow(productId) {
@@ -610,7 +615,7 @@ HTML_CONTENT = """
             const address = document.getElementById('custAddress').value;
             if (!name || !address) return alert('Please enter your Name and Address to complete order!');
             
-            alert(`Order Placed Successfully!\\n\\nThank you ${name}. Your paper crafts will be delivered to:\\n${address}`);
+            alert(`Order Placed Successfully!\n\nThank you ${name}. Your paper crafts will be delivered to:\n${address}`);
             cartItems = [];
             document.getElementById('cart-count').innerText = 0;
             closeModal('buyModal');
