@@ -38,7 +38,7 @@ HTML_CONTENT = """
         .cart-icon-btn { background: #ffe500; color: #2874f0; border: none; padding: 8px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
         
         .container { max-width: 1240px; margin: 25px auto; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; align-items: start; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 24px; align-items: start; }
         
         .card { 
             background: white; 
@@ -50,7 +50,7 @@ HTML_CONTENT = """
             flex-direction: column; 
             justify-content: space-between; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
-            min-height: 480px;
+            min-height: 520px;
         }
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); transition: all 0.2s ease-in-out; }
         
@@ -78,45 +78,60 @@ HTML_CONTENT = """
         .card h4 { font-size: 16px; margin-bottom: 6px; color: #111; }
         .card .price { font-size: 18px; font-weight: bold; color: #28a745; margin-bottom: 8px; }
         
-        .theme-select-box { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; text-align: left; }
+        .theme-select-box { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; text-align: left; }
         .theme-select-box label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; }
         .theme-select-box select, .theme-select-box input { width: 100%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; outline: none; }
         
-        .preview-rectangle { 
-            width: 100%; 
-            height: 110px; 
-            border: 2px dashed #2874f0; 
-            background: #ffffff; 
-            margin-top: 6px; 
-            border-radius: 6px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            overflow: hidden; 
-        }
-        
-        .preview-rectangle img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
-            background: #fff;
+        /* Dedicated Drawing Canvas Box */
+        .canvas-container {
+            border: 2px dashed #2874f0;
+            background: #ffffff;
+            border-radius: 6px;
+            margin-top: 6px;
+            padding: 4px;
+            text-align: center;
         }
 
-        .btn-import-lock {
-            background: #10b981;
+        canvas {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 6px;
+        }
+
+        .color-swatch {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 0 2px rgba(0,0,0,0.4);
+        }
+        .color-swatch.active { transform: scale(1.2); border-color: #333; }
+
+        .btn-tool {
             color: white;
             border: none;
-            padding: 8px 12px;
-            font-size: 12px;
+            padding: 6px 10px;
+            font-size: 11px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            width: 100%;
             margin-top: 6px;
+            width: 100%;
         }
-        .btn-import-lock:hover { background: #059669; }
-        .btn-import-lock:disabled { background: #9ca3af !important; cursor: not-allowed; }
+        .btn-clear { background: #dc3545; }
+        .btn-lock { background: #10b981; }
+        .btn-tool:disabled { background: #9ca3af !important; cursor: not-allowed; }
         
         .btn-group { display: flex; gap: 12px; margin-top: 14px; }
         .btn-add { background: #ff9f00; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1; font-size: 13px; }
@@ -253,7 +268,7 @@ HTML_CONTENT = """
             "2. Football",
             "3. Limited Edition- 2026-27",
             "4. Space",
-            "5. Custom (Import Picture)",
+            "5. Custom (Import Picture or Draw)",
             "6. Barbie",
             "7. Hello Kitty",
             "8. Cute Smiley",
@@ -263,6 +278,8 @@ HTML_CONTENT = """
             "12. Cars",
             "13. Bikes"
         ];
+
+        const availableColors = ["#2874f0", "#dc3545", "#28a745", "#111111", "#ff9f00", "#6f42c1"];
 
         const imgCardHolderWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -20 500 380' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='10' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='48' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='90' width='440' height='220' fill='%23ffffff' stroke='%23cccccc'/%3E%3Crect x='50' y='140' width='190' height='100' fill='%230f4c81' rx='4'/%3E%3Ctext x='140' y='195' font-size='20' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Crect x='260' y='140' width='190' height='100' fill='%231e1e1e' rx='4'/%3E%3Ctext x='340' y='195' font-size='20' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
         const imgDiamondSlotWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -20 500 380' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='10' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='48' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='90' width='440' height='220' fill='%23ffffff' stroke='%23cccccc'/%3E%3Cpolygon points='50,200 145,110 240,200 145,290' fill='%230f4c81'/%3E%3Cpolygon points='260,200 355,110 450,200 355,290' fill='%231e1e1e'/%3E%3Ctext x='115' y='205' font-size='16' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Ctext x='315' y='205' font-size='16' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
@@ -275,8 +292,8 @@ HTML_CONTENT = """
             { id: 1, name: "Card Holder Paper Wallet", price: 10, isWallet: true, image: imgCardHolderWallet },
             { id: 2, name: "Diamond Slot Paper Wallet", price: 10, isWallet: true, image: imgDiamondSlotWallet },
             { id: 3, name: "Envelope Fold Paper Wallet", price: 10, isWallet: true, image: imgEnvelopeFoldWallet },
-            { id: 4, name: "Korean Ddakji (Classic Battle Tile)", price: 10, isDdakji: false, image: imgDdakjiTile },
-            { id: 5, name: "Custom Korean Ddakji (Import Tile)", price: 10, isCustomDdakji: true, image: imgCustomDdakjiTile },
+            { id: 4, name: "Korean Ddakji (Classic Battle Tile)", price: 10, isWallet: false, image: imgDdakjiTile },
+            { id: 5, name: "Custom Korean Ddakji (Import / Draw Tile)", price: 10, isCustomDdakji: true, image: imgCustomDdakjiTile },
             { id: 6, name: "Glider Paper Plane (Top & Side Fold)", price: 10, isWallet: false, image: imgGliderPlaneCombined }
         ];
 
@@ -284,6 +301,7 @@ HTML_CONTENT = """
         let currentCheckoutProduct = null;
         let isSignUpMode = false;
         let currentUser = null;
+        const canvasStates = {};
 
         function renderProducts(list) {
             const grid = document.getElementById('product-grid');
@@ -326,26 +344,15 @@ HTML_CONTENT = """
                             </div>
 
                             <div id="custom-container-${p.id}" style="display: none;">
-                                <input type="file" id="file-${p.id}" accept="image/*" onchange="importAndLockPicture(${p.id}, event)" style="display:none;">
-                                <button class="btn-import-lock" id="btn-lock-${p.id}" onclick="triggerFileInput(${p.id})">📷 Import & Lock Picture</button>
-                                
-                                <div class="preview-rectangle" id="rectangle-box-${p.id}">
-                                    <img id="locked-img-${p.id}" style="display:none;" alt="Private Custom Upload">
-                                    <span id="placeholder-text-${p.id}" style="font-size:11px; color:#888;">No picture locked</span>
-                                </div>
+                                ${renderCanvasControls(p.id)}
                             </div>
                         </div>
                     `;
                 } else if (p.isCustomDdakji) {
                     themeControls = `
                         <div class="theme-select-box">
-                            <input type="file" id="file-${p.id}" accept="image/*" onchange="importAndLockPicture(${p.id}, event)" style="display:none;">
-                            <button class="btn-import-lock" id="btn-lock-${p.id}" onclick="triggerFileInput(${p.id})">📷 Import & Lock Ddakji Design</button>
-                            
-                            <div class="preview-rectangle" id="rectangle-box-${p.id}">
-                                <img id="locked-img-${p.id}" style="display:none;" alt="Private Ddakji Upload">
-                                <span id="placeholder-text-${p.id}" style="font-size:11px; color:#888;">No Ddakji design locked</span>
-                            </div>
+                            <label>Custom Ddakji Design:</label>
+                            ${renderCanvasControls(p.id)}
                         </div>
                     `;
                 }
@@ -368,12 +375,28 @@ HTML_CONTENT = """
                 `;
             }).join('');
 
-            // Restore private locked pictures after render
             list.forEach(p => {
-                if (p.isWallet || p.isCustomDdakji) {
-                    loadPrivatePicture(p.id);
-                }
+                if (p.isCustomDdakji) initCanvas(p.id);
             });
+        }
+
+        function renderCanvasControls(id) {
+            return `
+                <div class="canvas-container">
+                    <label style="font-size:10px; font-weight:bold; color:#666;">Draw or Upload Picture Below:</label>
+                    <canvas id="canvas-${id}" width="220" height="110"></canvas>
+                    
+                    <div class="color-palette">
+                        <span style="font-size:10px; font-weight:bold;">Color:</span>
+                        ${availableColors.map((c, i) => `<div class="color-swatch ${i===0?'active':''}" style="background:${c};" onclick="setPenColor(${id}, '${c}', this)"></div>`).join('')}
+                    </div>
+
+                    <input type="file" id="file-${id}" accept="image/*" onchange="importImageToCanvas(${id}, event)" style="font-size:10px; margin-top:4px; width:100%;">
+                    
+                    <button class="btn-tool btn-clear" id="btn-clear-${id}" onclick="clearCanvas(${id})">Clear Drawing</button>
+                    <button class="btn-tool btn-lock" id="btn-lock-${id}" onclick="lockCanvas(${id})">🔒 Lock Picture Permanent</button>
+                </div>
+            `;
         }
 
         renderProducts(products);
@@ -384,49 +407,131 @@ HTML_CONTENT = """
             renderProducts(filtered);
         }
 
-        function triggerFileInput(id) {
-            const fileInput = document.getElementById(`file-${id}`);
-            if (fileInput) fileInput.click();
+        function initCanvas(id) {
+            const canvas = document.getElementById(`canvas-${id}`);
+            if (!canvas || canvasStates[id]) return;
+            const ctx = canvas.getContext('2d');
+            let drawing = false;
+
+            canvasStates[id] = { canvas, ctx, color: availableColors[0], locked: false, loadedSrc: null };
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+
+            function startDraw(e) {
+                if (canvasStates[id].locked) return;
+                drawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function draw(e) {
+                if (!drawing || canvasStates[id].locked) return;
+                const pos = getPos(e);
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = canvasStates[id].color;
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            function stopDraw() {
+                drawing = false;
+                ctx.beginPath();
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('mouseleave', stopDraw);
+
+            canvas.addEventListener('touchstart', startDraw);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDraw);
+
+            loadSavedPicture(id);
         }
 
-        function importAndLockPicture(id, event) {
+        function setPenColor(id, color, elem) {
+            if (canvasStates[id]) {
+                canvasStates[id].color = color;
+                const parent = elem.parentElement;
+                parent.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                elem.classList.add('active');
+            }
+        }
+
+        function importImageToCanvas(id, event) {
+            if (canvasStates[id] && canvasStates[id].locked) return alert('Locked permanent!');
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const imgData = e.target.result;
-                // Store privately in browser storage (local only to user)
-                localStorage.setItem(`craftsmith_private_user_pic_${id}`, imgData);
-                applyPrivateLockUI(id, imgData);
-                alert('Picture imported and locked privately to your browser!');
+                const img = new Image();
+                img.onload = function() {
+                    const { canvas, ctx } = canvasStates[id];
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvasStates[id].loadedSrc = imgData;
+                };
+                img.src = imgData;
             };
             reader.readAsDataURL(file);
         }
 
-        function applyPrivateLockUI(id, imgSrc) {
-            const lockedImg = document.getElementById(`locked-img-${id}`);
-            const mainCardImg = document.getElementById(`card-main-img-${id}`);
-            const placeholder = document.getElementById(`placeholder-text-${id}`);
-            const lockBtn = document.getElementById(`btn-lock-${id}`);
+        function lockCanvas(id) {
+            if (!canvasStates[id]) return;
+            const state = canvasStates[id];
+            state.locked = true;
 
-            if (lockedImg) {
-                lockedImg.src = imgSrc;
-                lockedImg.style.display = 'block';
-            }
-            if (mainCardImg) mainCardImg.src = imgSrc;
-            if (placeholder) placeholder.style.display = 'none';
+            const finalImageSrc = state.canvas.toDataURL();
+            localStorage.setItem(`craftsmith_public_locked_pic_${id}`, finalImageSrc);
+            applyPublicLockUI(id, finalImageSrc);
+            alert('Picture locked permanent and saved!');
+        }
 
-            if (lockBtn) {
-                lockBtn.disabled = true;
-                lockBtn.innerText = "🔒 Picture Locked (Visible Only To You)";
+        function clearCanvas(id) {
+            if (canvasStates[id] && !canvasStates[id].locked) {
+                canvasStates[id].ctx.clearRect(0, 0, 220, 110);
+                canvasStates[id].loadedSrc = null;
+                const fileInput = document.getElementById(`file-${id}`);
+                if (fileInput) fileInput.value = '';
             }
         }
 
-        function loadPrivatePicture(id) {
-            const savedData = localStorage.getItem(`craftsmith_private_user_pic_${id}`);
-            if (savedData) {
-                applyPrivateLockUI(id, savedData);
+        function applyPublicLockUI(id, imgSrc) {
+            const mainCardImg = document.getElementById(`card-main-img-${id}`);
+            const lockBtn = document.getElementById(`btn-lock-${id}`);
+            const clearBtn = document.getElementById(`btn-clear-${id}`);
+            const fileInput = document.getElementById(`file-${id}`);
+
+            if (mainCardImg) mainCardImg.src = imgSrc;
+
+            if (lockBtn) {
+                lockBtn.disabled = true;
+                lockBtn.innerText = "🔒 Locked Permanent";
+            }
+            if (clearBtn) clearBtn.disabled = true;
+            if (fileInput) fileInput.disabled = true;
+        }
+
+        function loadSavedPicture(id) {
+            const savedData = localStorage.getItem(`craftsmith_public_locked_pic_${id}`);
+            if (savedData && canvasStates[id]) {
+                canvasStates[id].locked = true;
+                const img = new Image();
+                img.onload = function() {
+                    canvasStates[id].ctx.drawImage(img, 0, 0);
+                };
+                img.src = savedData;
+                applyPublicLockUI(id, savedData);
             }
         }
 
@@ -442,11 +547,12 @@ HTML_CONTENT = """
             if (marvelBox) marvelBox.style.display = themeVal.includes("Limited Edition") ? "block" : "none";
             if (carBox) carBox.style.display = themeVal.includes("Cars") ? "block" : "none";
             if (bikeBox) bikeBox.style.display = themeVal.includes("Bikes") ? "block" : "none";
-            
+
             const isCustom = themeVal.includes("Custom");
             const customBox = document.getElementById(`custom-container-${productId}`);
             if (customBox) {
                 customBox.style.display = isCustom ? "block" : "none";
+                if (isCustom) initCanvas(productId);
             }
         }
 
@@ -467,12 +573,13 @@ HTML_CONTENT = """
                     details += ` - ${document.getElementById(`car-${productId}`).value}`;
                 } else if (themeVal.includes("Bikes")) {
                     details += ` - ${document.getElementById(`bike-${productId}`).value}`;
-                } else if (themeVal.includes("Custom")) {
-                    details += ` - Private Locked Image Attached`;
                 }
                 details += `)`;
-            } else if (product.isCustomDdakji) {
-                details += ` (Private Custom Design Attached)`;
+            }
+            
+            const isPictureLocked = localStorage.getItem(`craftsmith_public_locked_pic_${productId}`);
+            if (isPictureLocked) {
+                details += ` [Custom Locked Artwork Attached]`;
             }
             return { product, details };
         }
