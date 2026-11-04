@@ -1,4 +1,4 @@
-import os
+import os 
 from flask import Flask, render_template_string
 
 app = Flask(__name__)
@@ -17,28 +17,34 @@ HTML_CONTENT = """
         header { 
             background-color: #2874f0; 
             color: white; 
-            padding: 14px 8%; 
+            padding: 12px 6%; 
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
+            gap: 15px;
             position: sticky; 
             top: 0; 
             z-index: 1000; 
             box-shadow: 0 3px 6px rgba(0,0,0,0.15); 
         }
-        .logo { font-size: 24px; font-weight: bold; font-style: italic; }
+        .logo { font-size: 22px; font-weight: bold; font-style: italic; white-space: nowrap; }
         
-        .header-actions { display: flex; gap: 12px; align-items: center; }
-        .auth-btn { background: white; color: #2874f0; border: none; padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
-        .cart-icon-btn { background: #ffe500; color: #2874f0; border: none; padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        /* Search Bar Styling */
+        .search-container { display: flex; flex: 1; max-width: 500px; }
+        .search-container input { width: 100%; padding: 8px 12px; border: none; border-radius: 4px 0 0 4px; outline: none; font-size: 13px; }
+        .search-container button { background: #ffe500; border: none; padding: 8px 16px; cursor: pointer; font-weight: bold; color: #2874f0; border-radius: 0 4px 4px 0; }
+
+        .header-actions { display: flex; gap: 10px; align-items: center; white-space: nowrap; }
+        .auth-btn { background: white; color: #2874f0; border: none; padding: 8px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        .cart-icon-btn { background: #ffe500; color: #2874f0; border: none; padding: 8px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
         
-        .container { max-width: 1240px; margin: 30px auto; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 24px; align-items: start; }
+        .container { max-width: 1240px; margin: 25px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; align-items: start; }
         
         .card { 
             background: white; 
             border-radius: 8px; 
-            padding: 18px 16px; 
+            padding: 16px; 
             text-align: center; 
             border: 1px solid #e0e0e0; 
             display: flex; 
@@ -51,7 +57,7 @@ HTML_CONTENT = """
         
         .card-img-wrapper {
             width: 100%;
-            height: 200px;
+            height: 190px;
             background: #fafafa;
             border: 1px solid #eee;
             border-radius: 6px;
@@ -59,7 +65,7 @@ HTML_CONTENT = """
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 12px;
+            padding: 10px;
             overflow: hidden;
         }
 
@@ -71,16 +77,16 @@ HTML_CONTENT = """
         }
         
         .card h4 { font-size: 16px; margin-bottom: 6px; color: #111; }
-        .card .price { font-size: 19px; font-weight: bold; color: #28a745; margin-bottom: 10px; }
+        .card .price { font-size: 18px; font-weight: bold; color: #28a745; margin-bottom: 8px; }
         
         .theme-select-box { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; text-align: left; }
         .theme-select-box label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; }
         .theme-select-box select, .theme-select-box input { width: 100%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; outline: none; }
         
-        /* Fixed Rectangle Preview Box for Custom Uploaded / Locked Pictures */
+        /* Rectangle Preview Box for Custom Uploads */
         .preview-rectangle { 
             width: 100%; 
-            height: 130px; 
+            height: 120px; 
             border: 2px dashed #2874f0; 
             background: #ffffff; 
             margin-top: 6px; 
@@ -103,13 +109,14 @@ HTML_CONTENT = """
             background: #fff;
         }
 
-        .canvas-tools { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .canvas-tools { display: flex; gap: 6px; margin-top: 8px; }
         .btn-tool { color: white; border: none; padding: 7px 10px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1; }
         .btn-clear { background: #dc3545; }
         .btn-lock { background: #28a745; }
         .btn-tool:disabled { background: #ccc !important; cursor: not-allowed; }
         
-        .btn-group { display: flex; gap: 10px; margin-top: 14px; }
+        /* Separated Action Buttons */
+        .btn-group { display: flex; gap: 12px; margin-top: 14px; }
         .btn-add { background: #ff9f00; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1; font-size: 13px; }
         .btn-buy { background: #fb641b; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1; font-size: 13px; }
         .btn-add:hover { background: #e68f00; }
@@ -133,6 +140,12 @@ HTML_CONTENT = """
 
     <header>
         <div class="logo">Craft Smith</div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search paper wallets, slinky, ddakji, glider..." onkeyup="filterProducts()">
+            <button>Search</button>
+        </div>
+
         <div class="header-actions">
             <span id="userGreeting" style="font-size:13px; font-weight:bold; display:none;"></span>
             <button class="auth-btn" id="loginHeaderBtn" onclick="openModal('authModal')">Sign In / Register</button>
@@ -254,15 +267,10 @@ HTML_CONTENT = """
             "2. Custom Ddakji (Import Picture or Draw)"
         ];
 
-        // Adjusted ViewBox parameters (0 -20 500 380) to add vertical headroom for banknote
         const imgCardHolderWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -20 500 380' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='10' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='48' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='90' width='440' height='220' fill='%23ffffff' stroke='%23cccccc'/%3E%3Crect x='50' y='140' width='190' height='100' fill='%230f4c81' rx='4'/%3E%3Ctext x='140' y='195' font-size='20' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Crect x='260' y='140' width='190' height='100' fill='%231e1e1e' rx='4'/%3E%3Ctext x='340' y='195' font-size='20' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
-        
         const imgDiamondSlotWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -20 500 380' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='10' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='48' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='90' width='440' height='220' fill='%23ffffff' stroke='%23cccccc'/%3E%3Cpolygon points='50,200 145,110 240,200 145,290' fill='%230f4c81'/%3E%3Cpolygon points='260,200 355,110 450,200 355,290' fill='%231e1e1e'/%3E%3Ctext x='115' y='205' font-size='16' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Ctext x='315' y='205' font-size='16' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
-        
         const imgEnvelopeFoldWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -10 500 340' fill='none' stroke='%23cccccc' stroke-width='3'%3E%3Crect x='20' y='10' width='140' height='290' fill='%2300a8ff' rx='4'/%3E%3Cpolygon points='20,10 160,10 90,150' fill='%230088cc'/%3E%3Crect x='180' y='10' width='140' height='290' fill='%23e84118' rx='4'/%3E%3Cpolygon points='180,10 320,10 250,150' fill='%23c23616'/%3E%3Crect x='340' y='10' width='140' height='290' fill='%23ffffff' rx='4' stroke='%23b2bec3'/%3E%3Cpolygon points='340,10 480,10 410,150' fill='%23f5f6fa' stroke='%23b2bec3'/%3E%3C/svg%3E";
-        
         const imgDdakjiTile = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -10 300 240' fill='none' stroke='%23333' stroke-width='2'%3E%3Crect x='30' y='10' width='110' height='110' fill='%234b7bec'/%3E%3Cpolygon points='30,10 140,120 30,120' fill='%233867d6'/%3E%3Crect x='160' y='10' width='110' height='110' fill='%23eb3b5a'/%3E%3Cpolygon points='160,10 270,120 160,120' fill='%23fc5c65'/%3E%3Ctext x='70' y='180' font-size='16' fill='%23555' stroke='none'%3EKorean Ddakji Battle Tile%3C/text%3E%3C/svg%3E";
-        
         const imgGliderPlaneCombined = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 280' fill='none' stroke='%23555' stroke-width='3'%3E%3Cg transform='translate(20,20)'%3E%3Cpolygon points='100,10 10,230 100,200 190,230' fill='%23ffffff' stroke='%23888'/%3E%3Cline x1='100' y1='10' x2='100' y2='200' stroke='%23888'/%3E%3Ctext x='50' y='255' font-size='13' fill='%23666' stroke='none'%3ETop Fold View%3C/text%3E%3C/g%3E%3Cg transform='translate(240,20)'%3E%3Cpolygon points='10,40 220,130 10,190' fill='%23f5f5f5' stroke='%23888'/%3E%3Cpolygon points='10,40 220,130 30,90' fill='%23ffffff' stroke='%23888'/%3E%3Ctext x='70' y='255' font-size='13' fill='%23666' stroke='none'%3ESide Wing View%3C/text%3E%3C/g%3E%3C/svg%3E";
 
         const products = [
@@ -278,104 +286,114 @@ HTML_CONTENT = """
         let isSignUpMode = false;
         let currentUser = null;
 
-        const grid = document.getElementById('product-grid');
-        grid.innerHTML = products.map(p => {
-            let themeControls = '';
-            if (p.isWallet) {
-                themeControls = `
-                    <div class="theme-select-box">
-                        <label>Theme Option:</label>
-                        <select id="theme-${p.id}" onchange="handleThemeChange(${p.id})">
-                            ${walletThemes.map(t => `<option value="${t}">${t}</option>`).join('')}
-                        </select>
-                        
-                        <div id="sub-team-container-${p.id}" style="display: none;">
-                            <label>Choose Football Club:</label>
-                            <select id="team-${p.id}">
-                                ${footballTeams.map(ft => `<option value="${ft}">${ft}</option>`).join('')}
+        function renderProducts(list) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = list.map(p => {
+                let themeControls = '';
+                if (p.isWallet) {
+                    themeControls = `
+                        <div class="theme-select-box">
+                            <label>Theme Option:</label>
+                            <select id="theme-${p.id}" onchange="handleThemeChange(${p.id})">
+                                ${walletThemes.map(t => `<option value="${t}">${t}</option>`).join('')}
                             </select>
-                        </div>
-
-                        <div id="sub-marvel-container-${p.id}" style="display: none;">
-                            <label>Select Superhero:</label>
-                            <select id="marvel-${p.id}">
-                                ${marvelHeroes.map(m => `<option value="${m}">${m}</option>`).join('')}
-                            </select>
-                        </div>
-
-                        <div id="sub-car-container-${p.id}" style="display: none;">
-                            <label>Select Car Model:</label>
-                            <select id="car-${p.id}">
-                                ${carModels.map(c => `<option value="${c}">${c}</option>`).join('')}
-                            </select>
-                        </div>
-
-                        <div id="sub-bike-container-${p.id}" style="display: none;">
-                            <label>Select Bike Model:</label>
-                            <select id="bike-${p.id}">
-                                ${bikeModels.map(b => `<option value="${b}">${b}</option>`).join('')}
-                            </select>
-                        </div>
-
-                        <div id="custom-container-${p.id}" style="display: none;">
-                            <label>Import Picture from Files:</label>
-                            <input type="file" id="file-${p.id}" accept="image/*" onchange="importPicture(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
                             
-                            <div class="preview-rectangle" id="rectangle-box-${p.id}">
-                                <canvas id="canvas-${p.id}" width="260" height="130"></canvas>
-                                <img id="locked-img-${p.id}" style="display:none;" alt="Stuck Custom Picture">
+                            <div id="sub-team-container-${p.id}" style="display: none;">
+                                <label>Choose Football Club:</label>
+                                <select id="team-${p.id}">
+                                    ${footballTeams.map(ft => `<option value="${ft}">${ft}</option>`).join('')}
+                                </select>
                             </div>
 
-                            <div class="canvas-tools">
-                                <button class="btn-tool btn-clear" id="btn-clear-${p.id}" onclick="clearCanvas(${p.id})">Clear</button>
-                                <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockPicture(${p.id})">🔒 Lock Picture Permanent</button>
+                            <div id="sub-marvel-container-${p.id}" style="display: none;">
+                                <label>Select Superhero:</label>
+                                <select id="marvel-${p.id}">
+                                    ${marvelHeroes.map(m => `<option value="${m}">${m}</option>`).join('')}
+                                </select>
                             </div>
+
+                            <div id="sub-car-container-${p.id}" style="display: none;">
+                                <label>Select Car Model:</label>
+                                <select id="car-${p.id}">
+                                    ${carModels.map(c => `<option value="${c}">${c}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <div id="sub-bike-container-${p.id}" style="display: none;">
+                                <label>Select Bike Model:</label>
+                                <select id="bike-${p.id}">
+                                    ${bikeModels.map(b => `<option value="${b}">${b}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <div id="custom-container-${p.id}" style="display: none;">
+                                <label>Import Picture from Files:</label>
+                                <input type="file" id="file-${p.id}" accept="image/*" onchange="importPicture(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
+                                
+                                <div class="preview-rectangle" id="rectangle-box-${p.id}">
+                                    <canvas id="canvas-${p.id}" width="260" height="120"></canvas>
+                                    <img id="locked-img-${p.id}" style="display:none;" alt="Custom Upload">
+                                </div>
+
+                                <div class="canvas-tools">
+                                    <button class="btn-tool btn-clear" id="btn-clear-${p.id}" onclick="clearCanvas(${p.id})">Clear</button>
+                                    <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockPicture(${p.id})">🔒 Lock Picture</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (p.isDdakji) {
+                    themeControls = `
+                        <div class="theme-select-box">
+                            <label>Ddakji Style:</label>
+                            <select id="theme-${p.id}" onchange="handleThemeChange(${p.id})">
+                                ${ddakjiThemes.map(t => `<option value="${t}">${t}</option>`).join('')}
+                            </select>
+
+                            <div id="custom-container-${p.id}" style="display: none;">
+                                <label>Import Picture from Files:</label>
+                                <input type="file" id="file-${p.id}" accept="image/*" onchange="importPicture(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
+                                
+                                <div class="preview-rectangle" id="rectangle-box-${p.id}">
+                                    <canvas id="canvas-${p.id}" width="260" height="120"></canvas>
+                                    <img id="locked-img-${p.id}" style="display:none;" alt="Custom Upload">
+                                </div>
+
+                                <div class="canvas-tools">
+                                    <button class="btn-tool btn-clear" id="btn-clear-${p.id}" onclick="clearCanvas(${p.id})">Clear</button>
+                                    <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockPicture(${p.id})">🔒 Lock Picture</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="card" id="card-${p.id}">
+                        <div>
+                            <div class="card-img-wrapper">
+                                <img id="card-main-img-${p.id}" src="${p.image}" alt="${p.name}">
+                            </div>
+                            <h4>${p.name}</h4>
+                            <div class="price">₹${p.price}</div>
+                            ${themeControls}
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+                            <button class="btn-buy" onclick="buyNow(${p.id})">Buy Now</button>
                         </div>
                     </div>
                 `;
-            } else if (p.isDdakji) {
-                themeControls = `
-                    <div class="theme-select-box">
-                        <label>Ddakji Style:</label>
-                        <select id="theme-${p.id}" onchange="handleThemeChange(${p.id})">
-                            ${ddakjiThemes.map(t => `<option value="${t}">${t}</option>`).join('')}
-                        </select>
+            }).join('');
+        }
 
-                        <div id="custom-container-${p.id}" style="display: none;">
-                            <label>Import Picture from Files:</label>
-                            <input type="file" id="file-${p.id}" accept="image/*" onchange="importPicture(${p.id}, event)" style="font-size:11px; margin-bottom:4px;">
-                            
-                            <div class="preview-rectangle" id="rectangle-box-${p.id}">
-                                <canvas id="canvas-${p.id}" width="260" height="130"></canvas>
-                                <img id="locked-img-${p.id}" style="display:none;" alt="Stuck Custom Picture">
-                            </div>
+        renderProducts(products);
 
-                            <div class="canvas-tools">
-                                <button class="btn-tool btn-clear" id="btn-clear-${p.id}" onclick="clearCanvas(${p.id})">Clear</button>
-                                <button class="btn-tool btn-lock" id="btn-lock-${p.id}" onclick="lockPicture(${p.id})">🔒 Lock Picture Permanent</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="card">
-                    <div>
-                        <div class="card-img-wrapper">
-                            <img id="card-main-img-${p.id}" src="${p.image}" alt="${p.name}">
-                        </div>
-                        <h4>${p.name}</h4>
-                        <div class="price">₹${p.price}</div>
-                        ${themeControls}
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
-                        <button class="btn-buy" onclick="buyNow(${p.id})">Buy Now</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            renderProducts(filtered);
+        }
 
         const canvasStates = {};
 
@@ -408,7 +426,7 @@ HTML_CONTENT = """
 
         function importPicture(id, event) {
             if (canvasStates[id] && canvasStates[id].locked) {
-                alert('This picture is locked permanent and cannot be changed!');
+                alert('This picture is locked and cannot be changed!');
                 return;
             }
             const file = event.target.files[0];
@@ -439,7 +457,7 @@ HTML_CONTENT = """
             localStorage.setItem(`craftsmith_locked_pic_${id}`, finalImageSrc);
 
             applyPermanentLockUI(id, finalImageSrc);
-            alert('Picture locked permanent! It is stuck and visible to everyone. No one can change anything now.');
+            alert('Picture locked safely!');
         }
 
         function applyPermanentLockUI(id, imgSrc) {
@@ -452,27 +470,23 @@ HTML_CONTENT = """
                 lockedImg.src = imgSrc;
                 lockedImg.style.display = 'block';
             }
-            if (mainCardImg) {
-                mainCardImg.src = imgSrc;
-            }
+            if (mainCardImg) mainCardImg.src = imgSrc;
 
             const fileInput = document.getElementById(`file-${id}`);
             const clearBtn = document.getElementById(`btn-clear-${id}`);
             const lockBtn = document.getElementById(`btn-lock-${id}`);
-            const themeSelect = document.getElementById(`theme-${id}`);
 
             if (fileInput) fileInput.disabled = true;
             if (clearBtn) clearBtn.disabled = true;
             if (lockBtn) {
                 lockBtn.disabled = true;
-                lockBtn.innerText = "🔒 Permanently Locked & Stuck";
+                lockBtn.innerText = "🔒 Locked";
             }
-            if (themeSelect) themeSelect.disabled = true;
         }
 
         function loadSavedPicture(id) {
             const savedData = localStorage.getItem(`craftsmith_locked_pic_${id}`);
-            if (savedData) {
+            if (savedData && canvasStates[id]) {
                 canvasStates[id].locked = true;
                 canvasStates[id].loadedSrc = savedData;
                 applyPermanentLockUI(id, savedData);
@@ -481,7 +495,7 @@ HTML_CONTENT = """
 
         function clearCanvas(id) {
             if (canvasStates[id] && !canvasStates[id].locked) {
-                canvasStates[id].ctx.clearRect(0, 0, 260, 130);
+                canvasStates[id].ctx.clearRect(0, 0, 260, 120);
                 canvasStates[id].loadedSrc = null;
                 const fileInput = document.getElementById(`file-${id}`);
                 if (fileInput) fileInput.value = '';
@@ -527,8 +541,7 @@ HTML_CONTENT = """
                 } else if (themeVal.includes("Bikes")) {
                     details += ` - ${document.getElementById(`bike-${productId}`).value}`;
                 } else if (themeVal.includes("Custom")) {
-                    const isLocked = canvasStates[productId] && canvasStates[productId].locked;
-                    details += isLocked ? ` - Permanently Stuck Locked Image Attached` : ` - Imported Custom Picture Attached`;
+                    details += ` - Custom Picture Attached`;
                 }
                 details += `)`;
             }
