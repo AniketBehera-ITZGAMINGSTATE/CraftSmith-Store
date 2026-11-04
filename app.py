@@ -82,13 +82,12 @@ HTML_CONTENT = """
         .theme-select-box label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; }
         .theme-select-box select, .theme-select-box input { width: 100%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; outline: none; }
         
-        /* Dedicated Drawing Canvas Box */
         .canvas-container {
             border: 2px dashed #2874f0;
             background: #ffffff;
             border-radius: 6px;
             margin-top: 6px;
-            padding: 4px;
+            padding: 6px;
             text-align: center;
         }
 
@@ -139,7 +138,6 @@ HTML_CONTENT = """
         .btn-add:hover { background: #e68f00; }
         .btn-buy:hover { background: #e0530f; }
 
-        /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
         .modal-box { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 480px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); position: relative; }
         .modal-box h3 { margin-bottom: 15px; color: #111; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
@@ -285,7 +283,7 @@ HTML_CONTENT = """
         const imgDiamondSlotWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -20 500 380' fill='%23ffffff' stroke='%23d0d0d0' stroke-width='2'%3E%3Crect x='10' y='10' width='480' height='320' rx='4' fill='%23fafafa'/%3E%3Crect x='30' y='10' width='440' height='60' fill='%23e6ecef' stroke='%23bcc4ca'/%3E%3Ctext x='150' y='48' font-size='20' fill='%231b7e46' font-weight='bold' stroke='none'%3E₹500 RESERVE BANK OF INDIA%3C/text%3E%3Crect x='30' y='90' width='440' height='220' fill='%23ffffff' stroke='%23cccccc'/%3E%3Cpolygon points='50,200 145,110 240,200 145,290' fill='%230f4c81'/%3E%3Cpolygon points='260,200 355,110 450,200 355,290' fill='%231e1e1e'/%3E%3Ctext x='115' y='205' font-size='16' fill='%23ffffff' font-weight='bold' stroke='none'%3EVISA%3C/text%3E%3Ctext x='315' y='205' font-size='16' fill='%23ea5b0c' font-weight='bold' stroke='none'%3ERuPay%3C/text%3E%3C/svg%3E";
         const imgEnvelopeFoldWallet = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -10 500 340' fill='none' stroke='%23cccccc' stroke-width='3'%3E%3Crect x='20' y='10' width='140' height='290' fill='%2300a8ff' rx='4'/%3E%3Cpolygon points='20,10 160,10 90,150' fill='%230088cc'/%3E%3Crect x='180' y='10' width='140' height='290' fill='%23e84118' rx='4'/%3E%3Cpolygon points='180,10 320,10 250,150' fill='%23c23616'/%3E%3Crect x='340' y='10' width='140' height='290' fill='%23ffffff' rx='4' stroke='%23b2bec3'/%3E%3Cpolygon points='340,10 480,10 410,150' fill='%23f5f6fa' stroke='%23b2bec3'/%3E%3C/svg%3E";
         const imgDdakjiTile = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -10 300 240' fill='none' stroke='%23333' stroke-width='2'%3E%3Crect x='30' y='10' width='110' height='110' fill='%234b7bec'/%3E%3Cpolygon points='30,10 140,120 30,120' fill='%233867d6'/%3E%3Crect x='160' y='10' width='110' height='110' fill='%23eb3b5a'/%3E%3Cpolygon points='160,10 270,120 160,120' fill='%23fc5c65'/%3E%3Ctext x='70' y='180' font-size='16' fill='%23555' stroke='none'%3EKorean Ddakji Battle Tile%3C/text%3E%3C/svg%3E";
-        const imgCustomDdakjiTile = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -10 300 240' fill='none' stroke='%232874f0' stroke-width='2'%3E%3Crect x='30' y='10' width='240' height='150' fill='%23f0f7ff' rx='6' stroke-dasharray='4'/%3E%3Ctext x='75' y='90' font-size='15' fill='%232874f0' font-weight='bold' stroke='none'%3ECustom Artwork Ddakji%3C/text%3E%3C/svg%3E";
+        const imgCustomDdakjiTile = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%232874f0' stroke-width='2'%3E%3Crect x='20' y='20' width='160' height='160' fill='%23f0f7ff' rx='6' stroke-dasharray='4'/%3E%3Ctext x='35' y='105' font-size='14' fill='%232874f0' font-weight='bold' stroke='none'%3ESquare Ddakji Canvas%3C/text%3E%3C/svg%3E";
         const imgGliderPlaneCombined = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 280' fill='none' stroke='%23555' stroke-width='3'%3E%3Cg transform='translate(20,20)'%3E%3Cpolygon points='100,10 10,230 100,200 190,230' fill='%23ffffff' stroke='%23888'/%3E%3Cline x1='100' y1='10' x2='100' y2='200' stroke='%23888'/%3E%3Ctext x='50' y='255' font-size='13' fill='%23666' stroke='none'%3ETop Fold View%3C/text%3E%3C/g%3E%3Cg transform='translate(240,20)'%3E%3Cpolygon points='10,40 220,130 10,190' fill='%23f5f5f5' stroke='%23888'/%3E%3Cpolygon points='10,40 220,130 30,90' fill='%23ffffff' stroke='%23888'/%3E%3Ctext x='70' y='255' font-size='13' fill='%23666' stroke='none'%3ESide Wing View%3C/text%3E%3C/g%3E%3C/svg%3E";
 
         const products = [
@@ -293,7 +291,7 @@ HTML_CONTENT = """
             { id: 2, name: "Diamond Slot Paper Wallet", price: 10, isWallet: true, image: imgDiamondSlotWallet },
             { id: 3, name: "Envelope Fold Paper Wallet", price: 10, isWallet: true, image: imgEnvelopeFoldWallet },
             { id: 4, name: "Korean Ddakji (Classic Battle Tile)", price: 10, isWallet: false, image: imgDdakjiTile },
-            { id: 5, name: "Custom Korean Ddakji (Import / Draw Tile)", price: 10, isCustomDdakji: true, image: imgCustomDdakjiTile },
+            { id: 5, name: "Custom Korean Ddakji (Square Tile)", price: 10, isCustomDdakji: true, image: imgCustomDdakjiTile },
             { id: 6, name: "Glider Paper Plane (Top & Side Fold)", price: 10, isWallet: false, image: imgGliderPlaneCombined }
         ];
 
@@ -344,15 +342,15 @@ HTML_CONTENT = """
                             </div>
 
                             <div id="custom-container-${p.id}" style="display: none;">
-                                ${renderCanvasControls(p.id)}
+                                ${renderCanvasControls(p.id, 220, 110)}
                             </div>
                         </div>
                     `;
                 } else if (p.isCustomDdakji) {
                     themeControls = `
                         <div class="theme-select-box">
-                            <label>Custom Ddakji Design:</label>
-                            ${renderCanvasControls(p.id)}
+                            <label>Square Ddakji Artwork:</label>
+                            ${renderCanvasControls(p.id, 160, 160)}
                         </div>
                     `;
                 }
@@ -376,15 +374,15 @@ HTML_CONTENT = """
             }).join('');
 
             list.forEach(p => {
-                if (p.isCustomDdakji) initCanvas(p.id);
+                if (p.isCustomDdakji) initCanvas(p.id, 160, 160);
             });
         }
 
-        function renderCanvasControls(id) {
+        function renderCanvasControls(id, width, height) {
             return `
                 <div class="canvas-container">
-                    <label style="font-size:10px; font-weight:bold; color:#666;">Draw or Upload Picture Below:</label>
-                    <canvas id="canvas-${id}" width="220" height="110"></canvas>
+                    <label style="font-size:10px; font-weight:bold; color:#666;">Draw or Upload Artwork:</label><br>
+                    <canvas id="canvas-${id}" width="${width}" height="${height}"></canvas>
                     
                     <div class="color-palette">
                         <span style="font-size:10px; font-weight:bold;">Color:</span>
@@ -407,13 +405,13 @@ HTML_CONTENT = """
             renderProducts(filtered);
         }
 
-        function initCanvas(id) {
+        function initCanvas(id, width = 220, height = 110) {
             const canvas = document.getElementById(`canvas-${id}`);
             if (!canvas || canvasStates[id]) return;
             const ctx = canvas.getContext('2d');
             let drawing = false;
 
-            canvasStates[id] = { canvas, ctx, color: availableColors[0], locked: false, loadedSrc: null };
+            canvasStates[id] = { canvas, ctx, color: availableColors[0], locked: false, loadedSrc: null, w: width, h: height };
 
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
@@ -476,9 +474,9 @@ HTML_CONTENT = """
                 const imgData = e.target.result;
                 const img = new Image();
                 img.onload = function() {
-                    const { canvas, ctx } = canvasStates[id];
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const { canvas, ctx, w, h } = canvasStates[id];
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
                     canvasStates[id].loadedSrc = imgData;
                 };
                 img.src = imgData;
@@ -499,7 +497,8 @@ HTML_CONTENT = """
 
         function clearCanvas(id) {
             if (canvasStates[id] && !canvasStates[id].locked) {
-                canvasStates[id].ctx.clearRect(0, 0, 220, 110);
+                const { ctx, w, h } = canvasStates[id];
+                ctx.clearRect(0, 0, w, h);
                 canvasStates[id].loadedSrc = null;
                 const fileInput = document.getElementById(`file-${id}`);
                 if (fileInput) fileInput.value = '';
@@ -528,7 +527,8 @@ HTML_CONTENT = """
                 canvasStates[id].locked = true;
                 const img = new Image();
                 img.onload = function() {
-                    canvasStates[id].ctx.drawImage(img, 0, 0);
+                    const { ctx, w, h } = canvasStates[id];
+                    ctx.drawImage(img, 0, 0, w, h);
                 };
                 img.src = savedData;
                 applyPublicLockUI(id, savedData);
@@ -552,7 +552,7 @@ HTML_CONTENT = """
             const customBox = document.getElementById(`custom-container-${productId}`);
             if (customBox) {
                 customBox.style.display = isCustom ? "block" : "none";
-                if (isCustom) initCanvas(productId);
+                if (isCustom) initCanvas(productId, 220, 110);
             }
         }
 
